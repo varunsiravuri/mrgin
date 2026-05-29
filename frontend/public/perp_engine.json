@@ -1,0 +1,1073 @@
+{
+  "address": "FiTnBYBBzxQkfiz63XGcUcPay8Z2E7nE5HXEMLPGjktB",
+  "metadata": {
+    "name": "perp_engine",
+    "version": "0.1.0",
+    "spec": "0.1.0"
+  },
+  "instructions": [
+    {
+      "name": "initializeMarket",
+      "discriminator": [
+        35,
+        35,
+        189,
+        193,
+        155,
+        48,
+        170,
+        203
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "market",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  114,
+                  107,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "quoteMint"
+              },
+              {
+                "kind": "account",
+                "path": "oracle"
+              }
+            ]
+          }
+        },
+        {
+          "name": "quoteMint"
+        },
+        {
+          "name": "oracle"
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "tokenProgram",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "systemProgram",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "rent",
+          "address": "SysvarRent111111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": {
+              "name": "MarketParams"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "setOraclePrice",
+      "discriminator": [
+        110,
+        10,
+        226,
+        147,
+        159,
+        228,
+        55,
+        46
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "signer": true
+        },
+        {
+          "name": "market",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "price",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "openPosition",
+      "discriminator": [
+        135,
+        128,
+        47,
+        77,
+        15,
+        152,
+        240,
+        49
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "market",
+          "writable": true
+        },
+        {
+          "name": "position",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  115,
+                  105,
+                  116,
+                  105,
+                  111,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              },
+              {
+                "kind": "account",
+                "path": "market"
+              }
+            ]
+          }
+        },
+        {
+          "name": "portfolio",
+          "writable": true
+        },
+        {
+          "name": "crossMarginProgram"
+        },
+        {
+          "name": "systemProgram",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": {
+              "name": "OpenPositionParams"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "closePosition",
+      "discriminator": [
+        123,
+        134,
+        81,
+        0,
+        49,
+        68,
+        98,
+        98
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "market",
+          "writable": true
+        },
+        {
+          "name": "position",
+          "writable": true
+        },
+        {
+          "name": "portfolio",
+          "writable": true
+        },
+        {
+          "name": "crossMarginProgram"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "settleFunding",
+      "discriminator": [
+        11,
+        251,
+        12,
+        161,
+        199,
+        228,
+        133,
+        87
+      ],
+      "accounts": [
+        {
+          "name": "market",
+          "writable": true
+        },
+        {
+          "name": "position",
+          "writable": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "liquidate",
+      "discriminator": [
+        223,
+        179,
+        226,
+        125,
+        48,
+        46,
+        39,
+        74
+      ],
+      "accounts": [
+        {
+          "name": "liquidator",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "owner"
+        },
+        {
+          "name": "market",
+          "writable": true
+        },
+        {
+          "name": "position",
+          "writable": true
+        },
+        {
+          "name": "portfolio",
+          "writable": true
+        },
+        {
+          "name": "crossMarginProgram"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "refreshPosition",
+      "discriminator": [
+        198,
+        60,
+        142,
+        140,
+        104,
+        224,
+        113,
+        50
+      ],
+      "accounts": [
+        {
+          "name": "market"
+        },
+        {
+          "name": "position",
+          "writable": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "placeLimitOrder",
+      "discriminator": [
+        108,
+        176,
+        33,
+        186,
+        146,
+        229,
+        1,
+        197
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "market",
+          "writable": true
+        },
+        {
+          "name": "order",
+          "writable": true
+        },
+        {
+          "name": "portfolio",
+          "writable": true
+        },
+        {
+          "name": "crossMarginProgram"
+        },
+        {
+          "name": "systemProgram",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": {
+              "name": "PlaceLimitOrderParams"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "cancelOrder",
+      "discriminator": [
+        95,
+        129,
+        237,
+        240,
+        8,
+        49,
+        223,
+        132
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "market"
+        },
+        {
+          "name": "order",
+          "writable": true
+        },
+        {
+          "name": "portfolio",
+          "writable": true
+        },
+        {
+          "name": "crossMarginProgram"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "fillOrder",
+      "discriminator": [
+        232,
+        122,
+        115,
+        25,
+        199,
+        143,
+        136,
+        162
+      ],
+      "accounts": [
+        {
+          "name": "sequencer",
+          "signer": true
+        },
+        {
+          "name": "market",
+          "writable": true
+        },
+        {
+          "name": "makerOrder",
+          "writable": true
+        },
+        {
+          "name": "takerOrder",
+          "writable": true
+        },
+        {
+          "name": "makerPosition",
+          "writable": true
+        },
+        {
+          "name": "takerPosition",
+          "writable": true
+        },
+        {
+          "name": "makerPortfolio",
+          "writable": true
+        },
+        {
+          "name": "takerPortfolio",
+          "writable": true
+        },
+        {
+          "name": "crossMarginProgram"
+        },
+        {
+          "name": "systemProgram",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "fillPrice",
+          "type": "u64"
+        },
+        {
+          "name": "fillSize",
+          "type": "u64"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Market",
+      "discriminator": [
+        219,
+        190,
+        213,
+        55,
+        0,
+        227,
+        198,
+        154
+      ]
+    },
+    {
+      "name": "Position",
+      "discriminator": [
+        170,
+        188,
+        143,
+        228,
+        122,
+        64,
+        247,
+        208
+      ]
+    },
+    {
+      "name": "OrderAccount",
+      "discriminator": [
+        79,
+        67,
+        112,
+        155,
+        214,
+        14,
+        32,
+        55
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "PositionOpened",
+      "discriminator": [
+        237,
+        175,
+        243,
+        230,
+        147,
+        117,
+        101,
+        121
+      ]
+    },
+    {
+      "name": "PositionClosed",
+      "discriminator": [
+        157,
+        163,
+        227,
+        228,
+        13,
+        97,
+        138,
+        121
+      ]
+    },
+    {
+      "name": "LiquidationExecuted",
+      "discriminator": [
+        231,
+        78,
+        79,
+        211,
+        167,
+        46,
+        83,
+        205
+      ]
+    },
+    {
+      "name": "FundingSettled",
+      "discriminator": [
+        250,
+        241,
+        161,
+        50,
+        159,
+        70,
+        172,
+        196
+      ]
+    },
+    {
+      "name": "OrderPlaced",
+      "discriminator": [
+        96,
+        130,
+        204,
+        234,
+        169,
+        219,
+        216,
+        227
+      ]
+    },
+    {
+      "name": "OrderFilled",
+      "discriminator": [
+        120,
+        124,
+        109,
+        66,
+        249,
+        116,
+        174,
+        30
+      ]
+    },
+    {
+      "name": "OrderCancelled",
+      "discriminator": [
+        108,
+        56,
+        128,
+        68,
+        168,
+        113,
+        168,
+        239
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "InvalidCollateral",
+      "msg": "Collateral too low"
+    },
+    {
+      "code": 6001,
+      "name": "ExceedsMaxLeverage",
+      "msg": "Exceeds max leverage"
+    },
+    {
+      "code": 6002,
+      "name": "PositionNotLiquidatable",
+      "msg": "Position not liquidatable"
+    },
+    {
+      "code": 6003,
+      "name": "FundingPeriodNotElapsed",
+      "msg": "Funding period not elapsed"
+    },
+    {
+      "code": 6004,
+      "name": "InvalidPrice",
+      "msg": "Price must be > 0"
+    },
+    {
+      "code": 6005,
+      "name": "PriceNotSet",
+      "msg": "Oracle price not set"
+    },
+    {
+      "code": 6006,
+      "name": "UnauthorizedSequencer",
+      "msg": "Unauthorized sequencer"
+    },
+    {
+      "code": 6007,
+      "name": "InsufficientOrderCollateral",
+      "msg": "Insufficient order collateral"
+    }
+  ],
+  "types": [
+    {
+      "name": "Market",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "quoteMint",
+            "type": "pubkey"
+          },
+          {
+            "name": "oracle",
+            "type": "pubkey"
+          },
+          {
+            "name": "vault",
+            "type": "pubkey"
+          },
+          {
+            "name": "longOpenInterest",
+            "type": "u64"
+          },
+          {
+            "name": "shortOpenInterest",
+            "type": "u64"
+          },
+          {
+            "name": "fundingRate",
+            "type": "i64"
+          },
+          {
+            "name": "lastFundingTs",
+            "type": "i64"
+          },
+          {
+            "name": "cumulativeFunding",
+            "type": "i64"
+          },
+          {
+            "name": "markPrice",
+            "type": "u64"
+          },
+          {
+            "name": "sequencerAuthority",
+            "type": "pubkey"
+          },
+          {
+            "name": "nextOrderId",
+            "type": "u64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Position",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "market",
+            "type": "pubkey"
+          },
+          {
+            "name": "crossMarginAccount",
+            "type": "pubkey"
+          },
+          {
+            "name": "size",
+            "type": "u64"
+          },
+          {
+            "name": "collateral",
+            "type": "u64"
+          },
+          {
+            "name": "entryPrice",
+            "type": "u64"
+          },
+          {
+            "name": "isLong",
+            "type": "bool"
+          },
+          {
+            "name": "entryFunding",
+            "type": "i64"
+          },
+          {
+            "name": "unrealizedPnl",
+            "type": "i64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "OrderAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "market",
+            "type": "pubkey"
+          },
+          {
+            "name": "orderId",
+            "type": "u64"
+          },
+          {
+            "name": "size",
+            "type": "u64"
+          },
+          {
+            "name": "collateral",
+            "type": "u64"
+          },
+          {
+            "name": "limitPrice",
+            "type": "u64"
+          },
+          {
+            "name": "isLong",
+            "type": "bool"
+          },
+          {
+            "name": "filledSize",
+            "type": "u64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "MarketParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "maxLeverage",
+            "type": "u8"
+          },
+          {
+            "name": "fundingPeriod",
+            "type": "i64"
+          },
+          {
+            "name": "maintenanceMarginBps",
+            "type": "u16"
+          },
+          {
+            "name": "liquidationFeeBps",
+            "type": "u16"
+          },
+          {
+            "name": "sequencerAuthority",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "OpenPositionParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "size",
+            "type": "u64"
+          },
+          {
+            "name": "collateral",
+            "type": "u64"
+          },
+          {
+            "name": "isLong",
+            "type": "bool"
+          },
+          {
+            "name": "maxSlippageBps",
+            "type": "u16"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PlaceLimitOrderParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "size",
+            "type": "u64"
+          },
+          {
+            "name": "collateral",
+            "type": "u64"
+          },
+          {
+            "name": "limitPrice",
+            "type": "u64"
+          },
+          {
+            "name": "isLong",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PositionOpened",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "market",
+            "type": "pubkey"
+          },
+          {
+            "name": "size",
+            "type": "u64"
+          },
+          {
+            "name": "entryPrice",
+            "type": "u64"
+          },
+          {
+            "name": "collateral",
+            "type": "u64"
+          },
+          {
+            "name": "isLong",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PositionClosed",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "market",
+            "type": "pubkey"
+          },
+          {
+            "name": "exitPrice",
+            "type": "u64"
+          },
+          {
+            "name": "realizedPnl",
+            "type": "i64"
+          },
+          {
+            "name": "size",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "LiquidationExecuted",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "liquidator",
+            "type": "pubkey"
+          },
+          {
+            "name": "market",
+            "type": "pubkey"
+          },
+          {
+            "name": "markPrice",
+            "type": "u64"
+          },
+          {
+            "name": "healthBps",
+            "type": "i64"
+          },
+          {
+            "name": "realizedPnl",
+            "type": "i64"
+          },
+          {
+            "name": "size",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "FundingSettled",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "market",
+            "type": "pubkey"
+          },
+          {
+            "name": "fundingRate",
+            "type": "i64"
+          },
+          {
+            "name": "cumulativeFunding",
+            "type": "i64"
+          },
+          {
+            "name": "markPrice",
+            "type": "u64"
+          },
+          {
+            "name": "elapsedSecs",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "OrderPlaced",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "market",
+            "type": "pubkey"
+          },
+          {
+            "name": "orderId",
+            "type": "u64"
+          },
+          {
+            "name": "size",
+            "type": "u64"
+          },
+          {
+            "name": "limitPrice",
+            "type": "u64"
+          },
+          {
+            "name": "isLong",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "OrderFilled",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "makerOwner",
+            "type": "pubkey"
+          },
+          {
+            "name": "takerOwner",
+            "type": "pubkey"
+          },
+          {
+            "name": "market",
+            "type": "pubkey"
+          },
+          {
+            "name": "fillPrice",
+            "type": "u64"
+          },
+          {
+            "name": "fillSize",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "OrderCancelled",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "market",
+            "type": "pubkey"
+          },
+          {
+            "name": "orderId",
+            "type": "u64"
+          }
+        ]
+      }
+    }
+  ]
+}

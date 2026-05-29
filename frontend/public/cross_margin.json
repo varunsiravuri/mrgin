@@ -1,0 +1,439 @@
+{
+  "address": "2Khz6Ehrexn5Eou1SR72UT1XGyAmv5cmAkqCYT24UDDm",
+  "metadata": {
+    "name": "cross_margin",
+    "version": "0.1.0",
+    "spec": "0.1.0"
+  },
+  "instructions": [
+    {
+      "name": "createPortfolio",
+      "discriminator": [
+        54,
+        26,
+        137,
+        113,
+        59,
+        182,
+        53,
+        225
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "portfolio",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  114,
+                  116,
+                  102,
+                  111,
+                  108,
+                  105,
+                  111
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              }
+            ]
+          }
+        },
+        {
+          "name": "quoteMint"
+        },
+        {
+          "name": "vault",
+          "writable": true
+        },
+        {
+          "name": "systemProgram",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "tokenProgram"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "deposit",
+      "discriminator": [
+        242,
+        35,
+        198,
+        137,
+        82,
+        225,
+        242,
+        182
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "portfolio",
+          "writable": true
+        },
+        {
+          "name": "userTokenAccount",
+          "writable": true
+        },
+        {
+          "name": "vault",
+          "writable": true
+        },
+        {
+          "name": "tokenProgram"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "withdraw",
+      "discriminator": [
+        183,
+        18,
+        70,
+        156,
+        148,
+        109,
+        161,
+        34
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "portfolio",
+          "writable": true
+        },
+        {
+          "name": "userTokenAccount",
+          "writable": true
+        },
+        {
+          "name": "vault",
+          "writable": true
+        },
+        {
+          "name": "tokenProgram"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "lockMargin",
+      "discriminator": [
+        225,
+        61,
+        115,
+        225,
+        104,
+        116,
+        116,
+        201
+      ],
+      "accounts": [
+        {
+          "name": "callerProgram"
+        },
+        {
+          "name": "portfolio",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "positionKey",
+          "type": "pubkey"
+        },
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "productType",
+          "type": {
+            "defined": {
+              "name": "ProductType"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "unlockMargin",
+      "discriminator": [
+        252,
+        217,
+        115,
+        115,
+        216,
+        210,
+        28,
+        156
+      ],
+      "accounts": [
+        {
+          "name": "callerProgram"
+        },
+        {
+          "name": "portfolio",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "positionKey",
+          "type": "pubkey"
+        },
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "realizedPnl",
+          "type": "i64"
+        },
+        {
+          "name": "productType",
+          "type": {
+            "defined": {
+              "name": "ProductType"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "checkHealth",
+      "discriminator": [
+        71,
+        59,
+        207,
+        58,
+        136,
+        156,
+        153,
+        7
+      ],
+      "accounts": [
+        {
+          "name": "portfolio"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "crossLiquidate",
+      "discriminator": [
+        112,
+        89,
+        155,
+        254,
+        255,
+        211,
+        180,
+        88
+      ],
+      "accounts": [
+        {
+          "name": "liquidator",
+          "signer": true
+        },
+        {
+          "name": "owner"
+        },
+        {
+          "name": "portfolio",
+          "writable": true
+        },
+        {
+          "name": "perpEngineProgram"
+        },
+        {
+          "name": "predictionMarketProgram"
+        }
+      ],
+      "args": []
+    }
+  ],
+  "accounts": [
+    {
+      "name": "PortfolioAccount",
+      "discriminator": [
+        45,
+        106,
+        240,
+        82,
+        4,
+        127,
+        117,
+        29
+      ]
+    }
+  ],
+  "events": [],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "InsufficientFreeCollateral",
+      "msg": "Insufficient free collateral"
+    },
+    {
+      "code": 6001,
+      "name": "PortfolioFull",
+      "msg": "Portfolio position slots full"
+    },
+    {
+      "code": 6002,
+      "name": "PositionNotFound",
+      "msg": "Position not found in portfolio"
+    },
+    {
+      "code": 6003,
+      "name": "PortfolioHealthy",
+      "msg": "Portfolio is healthy, cannot liquidate"
+    },
+    {
+      "code": 6004,
+      "name": "WrongAccountCount",
+      "msg": "Wrong number of remaining accounts"
+    },
+    {
+      "code": 6005,
+      "name": "InvalidAccountData",
+      "msg": "Invalid account data at offset"
+    }
+  ],
+  "types": [
+    {
+      "name": "PortfolioAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "quoteMint",
+            "type": "pubkey"
+          },
+          {
+            "name": "vault",
+            "type": "pubkey"
+          },
+          {
+            "name": "totalCollateral",
+            "type": "u64"
+          },
+          {
+            "name": "lockedCollateral",
+            "type": "u64"
+          },
+          {
+            "name": "perpPositions",
+            "type": {
+              "array": [
+                "pubkey",
+                8
+              ]
+            }
+          },
+          {
+            "name": "perpPositionCount",
+            "type": "u8"
+          },
+          {
+            "name": "betPositions",
+            "type": {
+              "array": [
+                "pubkey",
+                8
+              ]
+            }
+          },
+          {
+            "name": "betPositionCount",
+            "type": "u8"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ProductType",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Perp"
+          },
+          {
+            "name": "Bet"
+          }
+        ]
+      }
+    },
+    {
+      "name": "HealthReport",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "totalCollateral",
+            "type": "u64"
+          },
+          {
+            "name": "lockedCollateral",
+            "type": "u64"
+          },
+          {
+            "name": "unrealizedPnl",
+            "type": "i64"
+          },
+          {
+            "name": "equity",
+            "type": "i64"
+          },
+          {
+            "name": "healthBps",
+            "type": "i64"
+          }
+        ]
+      }
+    }
+  ]
+}

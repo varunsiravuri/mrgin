@@ -1,0 +1,26 @@
+{
+  "name": "mrgin-backend",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "api",
+    "matching-engine",
+    "bots",
+    "indexer"
+  ],
+  "scripts": {
+    "build": "tsc -b api/tsconfig.json matching-engine/tsconfig.json bots/tsconfig.json indexer/tsconfig.json",
+    "dev:api": "cd api && npx tsx watch src/index.ts",
+    "dev:matcher": "cd matching-engine && npx tsx watch src/index.ts",
+    "dev:bots": "cd bots && npx tsx watch src/index.ts",
+    "dev:indexer": "cd indexer && npx tsx watch src/index.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.4.0"
+  },
+  "dependencies": {
+    "bs58": "^6.0.0"
+  }
+}
