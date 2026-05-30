@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef } from "react";
-import { createChart, ColorType, CrosshairMode, CandlestickSeries } from "lightweight-charts";
+import { createChart, ColorType, CrosshairMode, CandlestickSeries, UTCTimestamp } from "lightweight-charts";
 import { fetchBinanceKlines } from "@/lib/api";
 import type { Interval } from "./IntervalSelector";
 
@@ -72,7 +72,7 @@ export function Chart({ market, interval, markPrice }: ChartProps) {
         const { k } = JSON.parse(evt.data);
         if (!k) return;
         seriesRef.current?.update({
-          time:  k.t / 1000,
+          time:  Math.floor(k.t / 1000) as UTCTimestamp,
           open:  Number(k.o),
           high:  Number(k.h),
           low:   Number(k.l),

@@ -1,3 +1,5 @@
+import type { CandlestickData, Time, UTCTimestamp } from "lightweight-charts";
+
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 const BINANCE = "https://api.binance.com/api/v3";
 
@@ -53,19 +55,22 @@ export async function fetchBinanceTicker(symbol = "SOLUSDT") {
   return r.json();
 }
 
-export async function fetchBinanceKlines(symbol = "SOLUSDT", interval = "1m", limit = 200) {
+export async function fetchBinanceKlines(
+  symbol = "SOLUSDT",
+  interval = "1m",
+  limit = 200
+): Promise<CandlestickData<Time>[]> {
   const r = await fetch(
     `${BINANCE}/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`
   );
   if (!r.ok) throw new Error("binance klines failed");
-  const raw: any[][] = await r.json();
+  const raw: number[][] = await r.json();
   return raw.map(k => ({
-    time: k[0] / 1000,       // seconds
-    open:  Number(k[1]),
-    high:  Number(k[2]),
-    low:   Number(k[3]),
+    time: Math.floor(k[0] / 1000) as UTCTimestamp,
+    open: Number(k[1]),
+    high: Number(k[2]),
+    low: Number(k[3]),
     close: Number(k[4]),
-    volume: Number(k[5]),
   }));
 }
 
