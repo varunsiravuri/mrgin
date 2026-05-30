@@ -1,60 +1,85 @@
 "use client";
-import useSWR from "swr";
-import { fetchTrades } from "@/lib/api";
+import { useEffect, useRef, useState } from "react";
 
 interface Trade {
   id: number;
-  fillPrice?: number;
-  entryPrice?: number;
-  exitPrice?: number;
+  price: number;
   size: number;
-  isLong?: boolean;
-  eventType: string;
-  timestamp: string;
+  isBuy: boolean;
+  time: number;
 }
 
-export function RecentTrades({ market }: { market: string }) {
-  const { data: trades = [] } = useSWR<Trade[]>(
-    market ? `trades:${market}` : null,
-    () => fetchTrades(market),
-    { refreshInterval: 2000 }
-  );
+const SYMBOL = "solusdt";
 
-  const getPrice = (t: Trade) => t.fillPrice ?? t.exitPrice ?? t.entryPrice ?? 0;
+export function RecentTrades({ market }: { market: string }) {
+  const [trades, setTrades] = useState<Trade[]>([]);
+  const wsRef = useRef<WebSocket | null>(null);
+
+  useEffect(() => {
+    // Seed with REST snapshot
+    fetch(`https://api.binance.com/api/v3/trades?symbol=${SYMBOL.toUpperCase()}&limit=40`)
+      .then(r => r.json())
+      .then((data: any[]) => {
+        const initial = data.reverse().map(t => ({
+          id: t.id, price: Number(t.price), size: Number(t.qty),
+          isBuy: !t.isBuyerMaker, time: t.time,
+        }));
+        setTrades(initial);
+      })
+      .catch(() => {});
+
+    // Stream new trades live
+    const ws = new WebSocket(`wss://stream.binance.com:9443/ws/${SYMBOL}@trade`);
+    ws.onmessage = (evt) => {
+      try {
+        const t = JSON.parse(evt.data);
+        const trade: Trade = {
+          id: t.t, price: Number(t.p), size: Number(t.q),
+          isBuy: !t.m, time: t.T,
+        };
+        setTrades(prev => [trade, ...prev].slice(0, 50));
+      } catch { /* */ }
+    };
+    ws.onerror = () => {};
+    wsRef.current = ws;
+    return () => ws.close();
+  }, []);
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="px-3 py-2 border-b border-[#111] shrink-0">
-        <span className="text-xs font-semibold">Recent Trades</span>
+    <div style={{ height: "100%", display: "flex", flexDirection: "column", background: "var(--bg)" }}>
+      <div style={{ padding: "6px 10px", borderBottom: "1px solid var(--border)", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span style={{ fontSize: 11, fontWeight: 600, color: "var(--text-1)" }}>Recent Trades</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+          <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#22c55e", display: "inline-block", animation: "pulse 2s infinite" }} />
+          <span style={{ fontSize: 9, color: "var(--text-4)", fontFamily: "var(--font-mono)" }}>LIVE</span>
+        </div>
       </div>
-      <div className="flex justify-between px-3 py-1 shrink-0">
-        <span className="text-[9px] text-[#333] uppercase tracking-widest">Price</span>
-        <span className="text-[9px] text-[#333] uppercase tracking-widest">Size</span>
-        <span className="text-[9px] text-[#333] uppercase tracking-widest">Time</span>
+
+      <div style={{ display: "flex", justifyContent: "space-between", padding: "3px 10px", flexShrink: 0 }}>
+        <span style={{ fontSize: 9, color: "var(--text-4)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Price</span>
+        <span style={{ fontSize: 9, color: "var(--text-4)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Qty</span>
+        <span style={{ fontSize: 9, color: "var(--text-4)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Time</span>
       </div>
-      <div className="flex-1 overflow-y-auto">
+
+      <div style={{ flex: 1, overflowY: "auto" }}>
         {trades.length === 0 ? (
-          <div className="h-full flex items-center justify-center">
-            <span className="text-xs text-[#2a2a2a]">No trades yet</span>
+          <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <span style={{ fontSize: 11, color: "var(--text-4)", fontFamily: "var(--font-mono)" }}>Connecting…</span>
           </div>
         ) : (
-          trades.slice(0, 40).map((t) => {
-            const p = getPrice(t);
-            const isBuy = t.isLong === true || t.eventType === "opened";
-            return (
-              <div key={t.id} className="flex justify-between items-center px-3 py-[3px] hover:bg-[#111] cursor-default">
-                <span className="text-xs w-20" style={{ fontFamily: "var(--font-mono)", color: isBuy ? "#22c55e" : "#ef4444" }}>
-                  {p > 0 ? p.toFixed(2) : "—"}
-                </span>
-                <span className="text-xs text-[#666]" style={{ fontFamily: "var(--font-mono)" }}>
-                  {(t.size / 1e6).toFixed(4)}
-                </span>
-                <span className="text-[10px] text-[#444]" style={{ fontFamily: "var(--font-mono)" }}>
-                  {new Date(t.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
-                </span>
-              </div>
-            );
-          })
+          trades.map(t => (
+            <div key={t.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "2px 10px" }}>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: t.isBuy ? "#22c55e" : "#ef4444", width: 70 }}>
+                {t.price.toFixed(2)}
+              </span>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-3)", textAlign: "right", width: 60 }}>
+                {t.size.toFixed(2)}
+              </span>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--text-4)", textAlign: "right", width: 60 }}>
+                {new Date(t.time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+              </span>
+            </div>
+          ))
         )}
       </div>
     </div>

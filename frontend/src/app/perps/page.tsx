@@ -3,15 +3,14 @@ import { useState } from "react";
 import useSWR from "swr";
 import Link from "next/link";
 import { Activity, ChevronLeft } from "lucide-react";
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import { fetchMarkets } from "@/lib/api";
+import { fetchBinanceTicker } from "@/lib/api";
+import { WalletButton } from "@/components/WalletButton";
 import { OrderBook } from "@/components/OrderBook";
 import { Chart } from "@/components/Chart";
 import { TradeForm } from "@/components/TradeForm";
 import { RecentTrades } from "@/components/RecentTrades";
 import { Positions } from "@/components/Positions";
 import { Portfolio } from "@/components/Portfolio";
-import { MarketSelector } from "@/components/MarketSelector";
 import { IntervalSelector, type Interval } from "@/components/IntervalSelector";
 import { PaperWallet } from "@/components/PaperWallet";
 
@@ -22,13 +21,13 @@ export default function PerpsPage() {
   const [selectedMarket, setSelectedMarket] = useState<string | null>(null);
   const [interval, setInterval] = useState<Interval>("1h");
 
-  const { data: markets = [] } = useSWR("markets", fetchMarkets, { refreshInterval: 3000 });
-  const market = selectedMarket ?? markets?.[0]?.address ?? null;
-  const currentMarket = markets.find((m: any) => m.address === market);
-  const markPrice: number = currentMarket?.markPrice ?? 0;
-  const change24h: number = currentMarket?.change24h ?? 0;
-  const fundingRate: number = currentMarket?.fundingRate ?? 0;
-  const openInterest: number = currentMarket?.openInterest ?? 0;
+  const { data: ticker } = useSWR("binance-sol-ticker", () => fetchBinanceTicker("SOLUSDT"), { refreshInterval: 5000 });
+
+  const market = selectedMarket ?? "SOL-PERP";
+  const markPrice: number = ticker ? Number(ticker.lastPrice) : 0;
+  const change24h: number = ticker ? Number(ticker.priceChangePercent) : 0;
+  const fundingRate = 0.0001;
+  const openInterest = ticker ? Number(ticker.quoteVolume) : 0;
 
   const isPositive = change24h >= 0;
 
@@ -103,7 +102,7 @@ export default function PerpsPage() {
             >Docs</span>
           </Link>
 
-          <WalletMultiButton />
+          <WalletButton />
         </div>
       </header>
 
@@ -117,14 +116,6 @@ export default function PerpsPage() {
       {/* ── Trade tab ── */}
       {tab === "Trade" && (
         <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0, overflow: "hidden" }}>
-          {!market ? (
-            <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <div style={{ textAlign: "center" }}>
-                <div style={{ width: 28, height: 28, borderRadius: "50%", border: "2px solid var(--border-2)", borderTopColor: "var(--text-3)", margin: "0 auto 12px", animation: "spin 0.8s linear infinite" }} />
-                <p style={{ color: "var(--text-4)", fontSize: 12, fontFamily: "var(--font-mono)" }}>Loading markets…</p>
-              </div>
-            </div>
-          ) : (
             <>
               {/* ── Main 3-column trading area ── */}
               <div style={{ flex: 1, display: "flex", minHeight: 0, overflow: "hidden" }}>
@@ -138,7 +129,7 @@ export default function PerpsPage() {
                 <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", overflow: "hidden" }}>
                   <div style={{ height: 44, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 12px", borderBottom: "1px solid var(--border)", background: "var(--bg)" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                      <MarketSelector markets={markets} selected={market} onSelect={setSelectedMarket} />
+                      <span style={{ fontFamily: "var(--font-mono)", fontSize: 13, fontWeight: 700, color: "var(--text-1)" }}>SOL-PERP</span>
                       <span style={{ color: "var(--border-2)", fontSize: 10, fontFamily: "var(--font-mono)" }}>USDC-settled</span>
                     </div>
                     <IntervalSelector value={interval} onChange={setInterval} />
@@ -164,7 +155,6 @@ export default function PerpsPage() {
                 <Positions market={market} markPrice={markPrice} />
               </div>
             </>
-          )}
         </div>
       )}
     </div>

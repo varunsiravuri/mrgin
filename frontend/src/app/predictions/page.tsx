@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Activity, ChevronLeft, Clock, CheckCircle, Zap, Users } from "lucide-react";
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import { WalletButton } from "@/components/WalletButton";
 import toast from "react-hot-toast";
 import { DotmSquare3 } from "@/components/ui/dotm-square-3";
 import { usePaperTrading } from "@/lib/paper-trading";
@@ -242,10 +242,9 @@ function BetModal({ market, onClose, defaultSide = "yes" }: {
               <p style={{ fontSize: 14, color: "var(--text-1)", lineHeight: 1.5, margin: 0, fontWeight: 500, maxWidth: 320 }}>{market.question}</p>
             </div>
           </div>
-          <div style={{ flexShrink: 0 }}>
-            <div style={{ fontSize: 9, fontFamily: "var(--font-mono)", color: "#f59e0b", background: "rgba(245,158,11,0.1)", padding: "3px 7px", borderRadius: 4, border: "1px solid rgba(245,158,11,0.2)", marginBottom: 4 }}>PAPER</div>
-            <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--text-1)", fontWeight: 700 }}>${state.freeBalance.toFixed(2)}</div>
-            <div style={{ fontSize: 9, color: "var(--text-4)" }}>available</div>
+          <div style={{ flexShrink: 0, textAlign: "right" }}>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 14, color: "#f0f0f0", fontWeight: 700 }}>${state.freeBalance.toFixed(2)}</div>
+            <div style={{ fontSize: 9, color: "#555" }}>available</div>
           </div>
         </div>
 
@@ -616,6 +615,7 @@ export default function PredictionsPage() {
         <span style={{ color: "#666", fontSize: 12 }}>Sports Predictions</span>
         <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 12 }}>
           <PaperWallet />
+          <WalletButton />
           {/* Global stats */}
           <div style={{ display: "flex", gap: 20, marginRight: 8 }}>
             <div style={{ textAlign: "right" }}>
@@ -629,7 +629,6 @@ export default function PredictionsPage() {
               <div style={{ fontFamily: "var(--font-mono)", fontSize: 13, fontWeight: 600, color: "#22c55e" }}>{openCount}</div>
             </div>
           </div>
-          <WalletMultiButton />
         </div>
       </header>
 

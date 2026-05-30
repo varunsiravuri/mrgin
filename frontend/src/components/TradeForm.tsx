@@ -112,7 +112,6 @@ export function TradeForm({ market, markPrice }: { market: string; markPrice: nu
       {/* Header */}
       <div style={{ padding: "10px 14px", borderBottom: "1px solid var(--border)", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <span style={{ fontSize: 11, fontWeight: 600, color: "var(--text-1)" }}>Place Order</span>
-        <span style={{ fontSize: 9, fontFamily: "var(--font-mono)", color: "#f59e0b", background: "rgba(245,158,11,0.1)", padding: "2px 6px", borderRadius: 4, border: "1px solid rgba(245,158,11,0.2)" }}>PAPER</span>
       </div>
 
       <div style={{ flex: 1, overflowY: "auto", padding: 14, display: "flex", flexDirection: "column", gap: 12 }}>
