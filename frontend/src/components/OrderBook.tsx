@@ -99,16 +99,16 @@ export function OrderBook({ market, markPrice }: { market: string; markPrice: nu
       <div style={{ padding: "8px 10px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
         <span style={{ fontSize: 11, fontWeight: 600, color: "var(--text-1)" }}>Order Book</span>
         {spread && (
-          <span style={{ fontSize: 9, color: "var(--text-4)", fontFamily: "var(--font-mono)" }}>
+          <span style={{ fontSize: 9, color: "var(--text-3)", fontFamily: "var(--font-mono)" }}>
             spread ${spread}
           </span>
         )}
       </div>
 
       {/* Column labels */}
-      <div style={{ display: "flex", justifyContent: "space-between", padding: "3px 10px", flexShrink: 0 }}>
-        <span style={{ fontSize: 9, color: "var(--text-4)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Price</span>
-        <span style={{ fontSize: 9, color: "var(--text-4)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Size</span>
+      <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 10px", flexShrink: 0, borderBottom: "1px solid var(--border)" }}>
+        <span style={{ fontSize: 9, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Price</span>
+        <span style={{ fontSize: 9, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Size</span>
       </div>
 
       {/* Asks (red, flipped) */}
@@ -117,11 +117,11 @@ export function OrderBook({ market, markPrice }: { market: string; markPrice: nu
       </div>
 
       {/* Mid price */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "6px 10px", borderTop: "1px solid var(--border)", borderBottom: "1px solid var(--border)", background: "var(--bg-2)", flexShrink: 0 }}>
-        <span style={{ fontFamily: "var(--font-mono)", fontSize: 13, fontWeight: 700, color: "var(--text-1)" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "7px 10px", borderTop: "1px solid var(--border-2)", borderBottom: "1px solid var(--border-2)", background: "var(--bg-3)", flexShrink: 0 }}>
+        <span style={{ fontFamily: "var(--font-mono)", fontSize: 14, fontWeight: 700, color: "var(--text-1)", letterSpacing: "-0.02em" }}>
           ${displayMid > 0 ? displayMid.toFixed(2) : "—"}
         </span>
-        <span style={{ fontSize: 9, color: "var(--text-4)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Mark</span>
+        <span style={{ fontSize: 9, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Mark</span>
       </div>
 
       {/* Bids (green) */}

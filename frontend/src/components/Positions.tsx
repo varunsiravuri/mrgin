@@ -58,7 +58,6 @@ export function Positions({ market, markPrice }: { market: string; markPrice: nu
             <span style={{ fontSize: 10, color: "var(--text-4)" }}>{activeBets.length} active bet{activeBets.length !== 1 ? "s" : ""}</span>
           </>
         )}
-        <span style={{ fontSize: 9, color: "#f59e0b", fontFamily: "var(--font-mono)", background: "rgba(245,158,11,0.1)", padding: "2px 6px", borderRadius: 4, marginLeft: "auto" }}>PAPER</span>
       </div>
 
       {positions.length === 0 && activeBets.length === 0 ? (

@@ -65,7 +65,7 @@ export default function PerpsPage() {
               { label: "Funding", value: `${fundingRate >= 0 ? "+" : ""}${(fundingRate * 100).toFixed(4)}%`, color: fundingRate >= 0 ? "#22c55e" : "#ef4444" },
             ].map(({ label, value, color }) => (
               <div key={label} style={{ display: "flex", flexDirection: "column" }}>
-                <span style={{ fontSize: 8, color: "var(--text-4)", textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 1 }}>{label}</span>
+                <span style={{ fontSize: 8, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 1 }}>{label}</span>
                 <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, fontWeight: 600, color }}>{value}</span>
               </div>
             ))}
@@ -74,12 +74,12 @@ export default function PerpsPage() {
 
         {/* Right: tabs + devnet + docs + wallet */}
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginLeft: "auto" }}>
-          <div style={{ display: "flex", background: "var(--bg-3)", border: "1px solid var(--border)", borderRadius: 8, padding: 2, gap: 2 }}>
+          <div style={{ display: "flex", background: "var(--bg-3)", border: "1px solid var(--border-2)", borderRadius: 8, padding: 2, gap: 2 }}>
             {(["Trade", "Portfolio"] as Tab[]).map(t => (
               <button key={t} onClick={() => setTab(t)} style={{
                 padding: "4px 12px", borderRadius: 6, border: "none", cursor: "pointer",
-                background: tab === t ? "var(--border-2)" : "none",
-                color: tab === t ? "var(--text-1)" : "var(--text-3)",
+                background: tab === t ? "var(--border-3)" : "none",
+                color: tab === t ? "var(--text-1)" : "var(--text-2)",
                 fontSize: 12, fontWeight: tab === t ? 600 : 400,
                 fontFamily: "var(--font-sans)", transition: "all 0.15s",
               }}>
@@ -88,17 +88,17 @@ export default function PerpsPage() {
             ))}
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: 5, padding: "4px 10px", borderRadius: 6, background: "var(--bg-2)", border: "1px solid var(--border)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 5, padding: "4px 10px", borderRadius: 6, background: "var(--bg-2)", border: "1px solid var(--border-2)" }}>
             <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#22c55e", display: "inline-block", animation: "pulse 3s infinite" }} />
-            <span style={{ fontSize: 10, color: "var(--text-4)", fontFamily: "var(--font-mono)" }}>devnet</span>
+            <span style={{ fontSize: 10, color: "var(--text-3)", fontFamily: "var(--font-mono)" }}>devnet</span>
           </div>
 
           <PaperWallet markPrices={{ [market ?? ""]: markPrice }} />
 
           <Link href="/docs" style={{ textDecoration: "none" }}>
-            <span style={{ fontSize: 12, color: "var(--text-4)", padding: "4px 8px", cursor: "pointer", transition: "color 0.12s" }}
-              onMouseEnter={e => ((e.target as HTMLElement).style.color = "var(--text-2)")}
-              onMouseLeave={e => ((e.target as HTMLElement).style.color = "var(--text-4)")}
+            <span style={{ fontSize: 12, color: "var(--text-2)", padding: "4px 8px", cursor: "pointer", transition: "color 0.12s" }}
+              onMouseEnter={e => ((e.target as HTMLElement).style.color = "var(--text-1)")}
+              onMouseLeave={e => ((e.target as HTMLElement).style.color = "var(--text-2)")}
             >Docs</span>
           </Link>
 

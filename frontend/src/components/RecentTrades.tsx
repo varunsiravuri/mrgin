@@ -51,14 +51,14 @@ export function RecentTrades({ market }: { market: string }) {
         <span style={{ fontSize: 11, fontWeight: 600, color: "var(--text-1)" }}>Recent Trades</span>
         <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
           <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#22c55e", display: "inline-block", animation: "pulse 2s infinite" }} />
-          <span style={{ fontSize: 9, color: "var(--text-4)", fontFamily: "var(--font-mono)" }}>LIVE</span>
+          <span style={{ fontSize: 9, color: "var(--text-3)", fontFamily: "var(--font-mono)" }}>LIVE</span>
         </div>
       </div>
 
-      <div style={{ display: "flex", justifyContent: "space-between", padding: "3px 10px", flexShrink: 0 }}>
-        <span style={{ fontSize: 9, color: "var(--text-4)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Price</span>
-        <span style={{ fontSize: 9, color: "var(--text-4)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Qty</span>
-        <span style={{ fontSize: 9, color: "var(--text-4)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Time</span>
+      <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 10px", flexShrink: 0, borderBottom: "1px solid var(--border)" }}>
+        <span style={{ fontSize: 9, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Price</span>
+        <span style={{ fontSize: 9, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Qty</span>
+        <span style={{ fontSize: 9, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Time</span>
       </div>
 
       <div style={{ flex: 1, overflowY: "auto" }}>
