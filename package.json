@@ -5,6 +5,8 @@
     "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check",
     "test": "bash scripts/test-all.sh",
     "test:smoke": "bash scripts/smoke-test.sh",
+    "test:onchain": "npx tsx scripts/devnet-onchain-test.ts",
+    "rotate-keys": "bash scripts/rotate-keys.sh",
     "setup:webhook": "bash scripts/setup-helius-webhook.sh",
     "test:programs": "bash build.sh && anchor test --skip-build",
     "test:sync-idl": "bash -c 'mkdir -p target/types && anchor idl type target/idl/cross_margin.json -o target/types/cross_margin.ts && anchor idl type target/idl/perp_engine.json -o target/types/perp_engine.ts && anchor idl type target/idl/prediction_market.json -o target/types/prediction_market.ts'"

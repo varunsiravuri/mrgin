@@ -9,7 +9,15 @@ const TOKEN_PROGRAM_ID = new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ
 import * as fs from "fs";
 import * as path from "path";
 
-const RPC = "https://api.devnet.solana.com";
+const envPath = path.join(__dirname, "../app/.env");
+if (fs.existsSync(envPath)) {
+  for (const line of fs.readFileSync(envPath, "utf-8").split("\n")) {
+    const m = line.match(/^([A-Z_][A-Z0-9_]*)=(.*)$/);
+    if (m && !process.env[m[1]]) process.env[m[1]] = m[2];
+  }
+}
+
+const RPC = process.env.HELIUS_RPC ?? "https://api.devnet.solana.com";
 const PERP_ENGINE_ID = "FiTnBYBBzxQkfiz63XGcUcPay8Z2E7nE5HXEMLPGjktB";
 const USDC_MINT = "6h89qqoyzwvwGQLJ5SvWVQBuQtvFmzaGVqdMXo4K9k19";
 

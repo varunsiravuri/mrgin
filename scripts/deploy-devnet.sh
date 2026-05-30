@@ -42,8 +42,8 @@ solana program deploy \
 
 echo ""
 echo "=== Funding bot wallets ==="
-solana transfer 1 $(solana-keygen pubkey .keys/bot.json) --allow-unfunded-recipient --url devnet
-solana transfer 1 $(solana-keygen pubkey .keys/sequencer.json) --allow-unfunded-recipient --url devnet
+solana transfer $(solana-keygen pubkey .keys/bot.json) 1 --allow-unfunded-recipient --url devnet
+solana transfer $(solana-keygen pubkey .keys/sequencer.json) 1 --allow-unfunded-recipient --url devnet
 
 echo ""
 echo "=== Deploy complete ==="
