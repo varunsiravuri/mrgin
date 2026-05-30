@@ -1,90 +1,26 @@
 "use client";
 import { createContext, useContext, useEffect, useReducer, useCallback } from "react";
+import {
+  type PaperPosition,
+  type PaperBet,
+  type PaperHistoryEntry,
+  type PaperState,
+  type PaperAction,
+  STARTING_BALANCE,
+  initialPaperState,
+  paperTradingReducer,
+  paperEquity,
+} from "./paper-trading-logic";
 
-// ── Types ────────────────────────────────────────────────────────────────────
+export type { PaperPosition, PaperBet, PaperHistoryEntry };
 
-export interface PaperPosition {
-  id: string;
-  market: string;
-  symbol: string;
-  side: "long" | "short";
-  size: number;        // token units (e.g. SOL)
-  entryPrice: number;  // USD
-  collateral: number;  // USDC locked
-  leverage: number;
-  notional: number;    // size * entryPrice
-  openedAt: number;
-}
-
-export interface PaperBet {
-  id: string;
-  marketId: string;
-  question: string;
-  sport: string;
-  emoji: string;
-  side: "yes" | "no";
-  amount: number;       // USDC risked
-  odds: number;
-  potentialWin: number;
-  placedAt: number;
-  status: "active" | "won" | "lost";
-}
-
-export interface PaperHistoryEntry {
-  id: string;
-  type: "open" | "close" | "bet" | "reset";
-  label: string;
-  amount: number;
-  pnl?: number;
-  ts: number;
-}
-
-interface PaperState {
-  freeBalance: number;
-  lockedCollateral: number;
-  positions: PaperPosition[];
-  bets: PaperBet[];
-  history: PaperHistoryEntry[];
-}
-
-type Action =
-  | { type: "OPEN_POSITION"; position: PaperPosition }
-  | { type: "CLOSE_POSITION"; id: string; exitPrice: number }
-  | { type: "PLACE_BET"; bet: PaperBet }
-  | { type: "RESOLVE_BET"; id: string; outcome: "yes" | "no" }
-  | { type: "RESET" };
-
-// ── Initial state ─────────────────────────────────────────────────────────────
-
-const STARTING_BALANCE = 5000;
-
-function initialState(): PaperState {
-  return {
-    freeBalance: STARTING_BALANCE,
-    lockedCollateral: 0,
-    positions: [],
-    bets: [],
-    history: [{
-      id: "init",
-      type: "open",
-      label: "Paper account funded",
-      amount: STARTING_BALANCE,
-      ts: Date.now(),
-    }],
-  };
-}
-
-// ── Reducer ───────────────────────────────────────────────────────────────────
-
-function reducer(state: PaperState, action: Action): PaperState {
+function reducer(state: PaperState, action: PaperAction): PaperState {
   switch (action.type) {
     case "OPEN_POSITION": {
+      const next = paperTradingReducer(state, action);
       const p = action.position;
       return {
-        ...state,
-        freeBalance: state.freeBalance - p.collateral,
-        lockedCollateral: state.lockedCollateral + p.collateral,
-        positions: [...state.positions, p],
+        ...next,
         history: [{
           id: p.id + "-open",
           type: "open" as const,
@@ -97,21 +33,15 @@ function reducer(state: PaperState, action: Action): PaperState {
     case "CLOSE_POSITION": {
       const pos = state.positions.find(p => p.id === action.id);
       if (!pos) return state;
-      const pnl = pos.side === "long"
-        ? (action.exitPrice - pos.entryPrice) / pos.entryPrice * pos.notional
-        : (pos.entryPrice - action.exitPrice) / pos.entryPrice * pos.notional;
-      const returned = pos.collateral + pnl;
+      const next = paperTradingReducer(state, action);
       return {
-        ...state,
-        freeBalance: state.freeBalance + Math.max(0, returned),
-        lockedCollateral: state.lockedCollateral - pos.collateral,
-        positions: state.positions.filter(p => p.id !== action.id),
+        ...next,
         history: [{
           id: pos.id + "-close",
           type: "close" as const,
           label: `Closed ${pos.side.toUpperCase()} ${pos.symbol} @ $${action.exitPrice.toFixed(2)}`,
-          amount: Math.abs(pnl),
-          pnl,
+          amount: Math.abs((next.history[0]?.pnl) ?? 0),
+          pnl: next.history[0]?.pnl,
           ts: Date.now(),
         }, ...state.history].slice(0, 100),
       };
@@ -154,7 +84,7 @@ function reducer(state: PaperState, action: Action): PaperState {
       };
     }
     case "RESET":
-      return initialState();
+      return initialPaperState();
     default:
       return state;
   }
@@ -165,12 +95,12 @@ function reducer(state: PaperState, action: Action): PaperState {
 const LS_KEY = "mrgin:paper";
 
 function load(): PaperState {
-  if (typeof window === "undefined") return initialState();
+  if (typeof window === "undefined") return initialPaperState();
   try {
     const raw = localStorage.getItem(LS_KEY);
     if (raw) return JSON.parse(raw);
   } catch { /* */ }
-  return initialState();
+  return initialPaperState();
 }
 
 function save(s: PaperState) {

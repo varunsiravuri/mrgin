@@ -19,14 +19,14 @@ async function refreshAndCheckHealth(
   marketPubkey: PublicKey
 ) {
   // Fetch all positions for this market
-  const positions = await perpProgram.account.position.all([
+  const positions = await (perpProgram.account as any).position.all([
     { memcmp: { offset: 40, bytes: marketPubkey.toBase58() } }, // market field at offset 40
   ]);
 
   for (const { publicKey: positionPubkey, account: position } of positions) {
     try {
       // 1. Refresh unrealized PnL on-chain
-      await perpProgram.methods
+      await (perpProgram as any).methods
         .refreshPosition()
         .accounts({ caller: botKeypair.publicKey, market: marketPubkey, position: positionPubkey })
         .rpc();
@@ -36,10 +36,10 @@ async function refreshAndCheckHealth(
         [Buffer.from("portfolio"), new PublicKey(position.owner).toBuffer()],
         crossMarginProgram.programId
       );
-      const portfolio = await crossMarginProgram.account.portfolioAccount.fetch(portfolioPDA);
+      const portfolio = await (crossMarginProgram.account as any).portfolioAccount.fetch(portfolioPDA);
 
       const equity = Number(portfolio.totalCollateral) + Number(position.unrealizedPnl);
-      const notional = (Number(position.size) * Number((await perpProgram.account.market.fetch(marketPubkey)).markPrice)) / 1e6;
+      const notional = (Number(position.size) * Number((await (perpProgram.account as any).market.fetch(marketPubkey)).markPrice)) / 1e6;
       if (notional === 0) continue;
 
       const healthBps = Math.floor((equity * 10_000) / notional);
@@ -58,14 +58,14 @@ async function refreshAndCheckHealth(
           .slice(0, portfolio.perpPositionCount)
           .filter((k: PublicKey) => !k.equals(PublicKey.default));
 
-        await crossMarginProgram.methods
+        await (crossMarginProgram as any).methods
           .checkHealth()
           .accounts({ caller: botKeypair.publicKey, portfolio: portfolioPDA })
           .remainingAccounts(perpPositions.map((k: PublicKey) => ({ pubkey: k, isWritable: false, isSigner: false })))
           .rpc();
 
         // Execute liquidation via perp_engine
-        await perpProgram.methods
+        await (perpProgram as any).methods
           .liquidate()
           .accounts({
             liquidator: botKeypair.publicKey,

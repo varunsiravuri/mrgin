@@ -6,6 +6,7 @@ import { redis } from "./redis";
 import { orderbookRoutes } from "./routes/orderbook";
 import { portfolioRoutes } from "./routes/portfolio";
 import { marketRoutes } from "./routes/markets";
+import { predictionMarketRoutes } from "./routes/prediction-markets";
 
 const app = Fastify({ logger: true });
 
@@ -15,6 +16,7 @@ app.register(websocket);
 app.register(orderbookRoutes);
 app.register(portfolioRoutes);
 app.register(marketRoutes);
+app.register(predictionMarketRoutes);
 
 // WebSocket: real-time order book + fill streaming
 app.register(async (fastify) => {
@@ -32,6 +34,7 @@ app.register(async (fastify) => {
 
 app.get("/health", async () => ({ ok: true, ts: Date.now() }));
 
-app.listen({ port: Number(process.env.PORT ?? 3001), host: "0.0.0.0" }, (err) => {
-  if (err) { app.log.error(err); process.exit(1); }
+app.listen({ port: Number(process.env.PORT ?? 3001), host: "0.0.0.0" }).catch((err) => {
+  app.log.error(err);
+  process.exit(1);
 });

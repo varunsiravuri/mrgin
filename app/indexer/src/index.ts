@@ -1,4 +1,8 @@
-import "dotenv/config";
+import path from "path";
+import { config } from "dotenv";
+
+config({ path: path.resolve(__dirname, "../../.env") });
+
 import Fastify from "fastify";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
@@ -11,6 +15,14 @@ const app = Fastify({ logger: true });
 
 // Helius sends a POST with an array of enriched transactions
 app.post<{ Body: any[] }>("/webhook", async (req, reply) => {
+  const expectedAuth = process.env.HELIUS_WEBHOOK_AUTH;
+  if (expectedAuth) {
+    const incoming = req.headers.authorization ?? req.headers["x-helius-auth"];
+    if (incoming !== expectedAuth && incoming !== `Bearer ${expectedAuth}`) {
+      return reply.code(401).send({ ok: false, error: "unauthorized" });
+    }
+  }
+
   const txs: any[] = Array.isArray(req.body) ? req.body : [req.body];
 
   for (const tx of txs) {
@@ -109,7 +121,11 @@ async function processLogs(sig: string, logs: string[], tx: any) {
 
 app.get("/health", async () => ({ ok: true }));
 
-app.listen({ port: Number(process.env.INDEXER_PORT ?? 3002), host: "0.0.0.0" }, (err) => {
-  if (err) { app.log.error(err); process.exit(1); }
-  app.log.info("indexer listening on :3002 for Helius webhooks");
-});
+const port = Number(process.env.INDEXER_PORT ?? 3002);
+app.listen({ port, host: "0.0.0.0" }).then(
+  () => console.log(`indexer listening on :${port} for Helius webhooks`),
+  (err) => {
+    console.error(err);
+    process.exit(1);
+  }
+);

@@ -10,11 +10,11 @@ const botKeypair = Keypair.fromSecretKey(bs58.decode(process.env.BOT_SECRET_KEY!
 const provider = new AnchorProvider(connection, new Wallet(botKeypair), { commitment: "confirmed" });
 
 async function main() {
-  const perpIdl = await import("../../perp_engine.json", { assert: { type: "json" } });
-  const crossMarginIdl = await import("../../cross_margin.json", { assert: { type: "json" } });
+  const perpIdl = await import("../../../target/idl/perp_engine.json");
+  const crossMarginIdl = await import("../../../target/idl/cross_margin.json");
 
-  const perpProgram = new Program(perpIdl.default as any, provider);
-  const crossMarginProgram = new Program(crossMarginIdl.default as any, provider);
+  const perpProgram = new Program((perpIdl.default ?? perpIdl) as any, provider);
+  const crossMarginProgram = new Program((crossMarginIdl.default ?? crossMarginIdl) as any, provider);
 
   await Promise.all([
     runLiquidationBot(perpProgram, crossMarginProgram),

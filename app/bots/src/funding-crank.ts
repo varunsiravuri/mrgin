@@ -10,7 +10,7 @@ export async function runFundingCrank(perpProgram: Program<any>, crankerKeypair:
   const settle = async () => {
     for (const market of MARKETS) {
       try {
-        await perpProgram.methods
+        await (perpProgram as any).methods
           .settleFunding()
           .accounts({ cranker: crankerKeypair.publicKey, market: new PublicKey(market) })
           .rpc();

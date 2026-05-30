@@ -2,10 +2,17 @@
   "license": "ISC",
   "scripts": {
     "lint:fix": "prettier */*.js \"*/**/*{.js,.ts}\" -w",
-    "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check"
+    "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check",
+    "test": "bash scripts/test-all.sh",
+    "test:smoke": "bash scripts/smoke-test.sh",
+    "setup:webhook": "bash scripts/setup-helius-webhook.sh",
+    "test:programs": "bash build.sh && anchor test --skip-build",
+    "test:sync-idl": "bash -c 'mkdir -p target/types && anchor idl type target/idl/cross_margin.json -o target/types/cross_margin.ts && anchor idl type target/idl/perp_engine.json -o target/types/perp_engine.ts && anchor idl type target/idl/prediction_market.json -o target/types/prediction_market.ts'"
   },
   "dependencies": {
-    "@coral-xyz/anchor": "^0.31.1"
+    "@coral-xyz/anchor": "^0.31.1",
+    "@solana/spl-token": "^0.4.9",
+    "@solana/web3.js": "^1.91.8"
   },
   "devDependencies": {
     "chai": "^4.3.4",

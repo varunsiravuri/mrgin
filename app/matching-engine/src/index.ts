@@ -73,7 +73,7 @@ async function matchMarket(market: string, program: Program<any>) {
       program.programId
     );
 
-    await program.methods
+    await (program as any).methods
       .fillOrder(new BN(fillPrice), new BN(fillSize))
       .accounts({
         sequencer: sequencerKeypair.publicKey,
@@ -106,8 +106,8 @@ async function matchMarket(market: string, program: Program<any>) {
 
 async function run() {
   console.log("[matcher] starting — markets:", MARKETS);
-  const idl = await import("../../perp_engine.json", { assert: { type: "json" } });
-  const program = new Program(idl.default as any, provider);
+  const idl = await import("../../../target/idl/perp_engine.json");
+  const program = new Program(idl.default ?? idl as any, provider);
 
   setInterval(async () => {
     for (const market of MARKETS) {
