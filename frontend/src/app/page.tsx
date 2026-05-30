@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Activity, ArrowRight, ArrowUpRight } from "lucide-react";
 import { WalletButton } from "@/components/WalletButton";
+import { HeroBackground } from "@/components/HeroBackground";
 
 // ── Live data ──────────────────────────────────────────────────────────────────
 
@@ -131,10 +132,10 @@ export default function Landing() {
 
         .cta-primary { transition: background 0.15s, transform 0.12s !important; }
         .cta-primary:hover { background: #d8d8d8 !important; transform: translateY(-2px) !important; }
-        .cta-secondary { transition: border-color 0.15s, color 0.15s, transform 0.12s !important; }
-        .cta-secondary:hover { border-color: #3a3a3a !important; color: #f2f2f2 !important; transform: translateY(-2px) !important; }
-        .nav-link { transition: color 0.15s !important; }
-        .nav-link:hover { color: #f2f2f2 !important; }
+        .cta-secondary { transition: border-color 0.15s, color 0.15s, transform 0.12s, background 0.15s !important; color: var(--text-2) !important; border-color: #444 !important; background: rgba(12,12,12,0.65) !important; }
+        .cta-secondary:hover { border-color: #666 !important; color: var(--text-1) !important; background: rgba(22,22,22,0.85) !important; transform: translateY(-2px) !important; }
+        .nav-link { transition: color 0.15s !important; color: var(--text-2) !important; }
+        .nav-link:hover { color: var(--text-1) !important; }
         .product-card { transition: border-color 0.25s, transform 0.2s !important; }
         .product-card:hover { border-color: #2a2a2a !important; transform: translateY(-6px) !important; }
         .arch-row:hover { background: #101010 !important; }
@@ -149,7 +150,7 @@ export default function Landing() {
         borderBottom: "1px solid #161616",
       }}>
         <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", marginRight: "auto" }}>
-          <Activity size={13} color="#444" />
+          <Activity size={13} color="#86efac" />
           <span style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", fontSize: 21, color: "#f2f2f2", letterSpacing: "-0.01em", lineHeight: 1 }}>mrgin</span>
         </Link>
 
@@ -157,7 +158,7 @@ export default function Landing() {
           {[["Perps", "/perps"], ["Sports", "/predictions"], ["Docs", "/docs"]].map(([label, href]) => (
             <Link key={href} href={href} className="nav-link" style={{
               textDecoration: "none", padding: "6px 14px", borderRadius: 7,
-              fontSize: 13, color: "#555", fontFamily: "var(--font-sans)",
+              fontSize: 13, fontFamily: "var(--font-sans)",
             }}>{label}</Link>
           ))}
         </div>
@@ -167,49 +168,97 @@ export default function Landing() {
 
       {/* ── HERO ──────────────────────────────────────────────────────── */}
       <section style={{
-        minHeight: "100vh", paddingTop: 52,
+        position: "relative", minHeight: "100vh", paddingTop: 52,
         display: "grid", gridTemplateColumns: "1fr 360px",
         alignItems: "center", gap: 48,
         maxWidth: 1280, margin: "0 auto", padding: "52px 48px 80px",
+        overflow: "hidden",
       }}>
+        <HeroBackground />
+        <div style={{
+          position: "absolute", inset: "52px 48px 0", pointerEvents: "none", zIndex: 0,
+          borderLeft: "1px solid #121212", borderRight: "1px solid #121212",
+        }} />
+        <div style={{
+          position: "absolute", top: "18%", left: "48%", width: 1, height: "62%",
+          background: "linear-gradient(to bottom, transparent, #1a1a1a 20%, #1a1a1a 80%, transparent)",
+          pointerEvents: "none", display: "none",
+        }} />
+
         {/* Left */}
-        <div style={{ animation: "fade-up 0.7s ease both" }}>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, marginBottom: 52 }}>
-            <span style={{
-              width: 7, height: 7, borderRadius: "50%", background: "#22c55e",
-              display: "inline-block", animation: "pulse-dot 2s infinite",
-            }} />
-            <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "#444", letterSpacing: "0.12em", textTransform: "uppercase" }}>
-              live on solana devnet
+        <div style={{
+          animation: "fade-up 0.7s ease both", position: "relative", zIndex: 2,
+          padding: "8px 36px 8px 0",
+          borderRadius: 20,
+        }}>
+          <div style={{
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            marginBottom: 40, paddingBottom: 20, borderBottom: "1px solid #2a2a2a",
+            maxWidth: 520,
+          }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+              <span style={{
+                width: 7, height: 7, borderRadius: "50%", background: "#22c55e",
+                display: "inline-block", animation: "pulse-dot 2s infinite",
+              }} />
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "#86efac", letterSpacing: "0.12em", textTransform: "uppercase" }}>
+                live on solana devnet
+              </span>
+            </div>
+            <span style={{ fontFamily: "var(--font-sans)", fontSize: 11, color: "var(--text-label)", letterSpacing: "0.08em" }}>
+              Est. 2026
             </span>
+          </div>
+
+          <div style={{
+            fontFamily: "var(--font-serif)", fontStyle: "italic", fontSize: 16,
+            color: "var(--text-2)", marginBottom: 20, letterSpacing: "0.01em",
+          }}>
+            Perpetuals &amp; prediction markets, unified.
           </div>
 
           <h1 style={{
             fontSize: "clamp(54px, 6.5vw, 92px)", fontWeight: 800,
             lineHeight: 0.96, margin: "0 0 6px",
-            letterSpacing: "-0.035em", fontFamily: "var(--font-sans)", color: "#f2f2f2",
+            letterSpacing: "-0.035em", fontFamily: "var(--font-sans)", color: "var(--text-1)",
           }}>
             Two markets.
           </h1>
           <h1 style={{
             fontSize: "clamp(54px, 6.5vw, 92px)", fontWeight: 400,
-            lineHeight: 0.96, margin: "0 0 44px",
+            lineHeight: 0.96, margin: "0 0 28px",
             letterSpacing: "-0.025em", fontFamily: "var(--font-serif)",
-            fontStyle: "italic", color: "#333",
+            fontStyle: "italic", color: "var(--text-serif-accent)",
           }}>
             One vault.
           </h1>
 
-          <p style={{
-            fontSize: 17, color: "#555", lineHeight: 1.8,
-            maxWidth: 460, marginBottom: 48, fontFamily: "var(--font-sans)",
+          <div style={{
+            display: "inline-block", padding: "14px 0 14px 18px",
+            borderLeft: "2px solid #22c55e55", marginBottom: 36, maxWidth: 480,
           }}>
-            Long SOL at 20×. Bet the NBA Finals. Your winnings automatically
-            cushion your losses — across perps <em style={{ color: "#666" }}>and</em> sports,
-            from a single USDC pool.
-          </p>
+            <p style={{
+              fontSize: 17, color: "var(--text-2)", lineHeight: 1.75,
+              margin: 0, fontFamily: "var(--font-sans)",
+            }}>
+              Long SOL at 20×. Bet the NBA Finals. Your winnings automatically
+              cushion your losses — across perps <em style={{ color: "var(--text-1)", fontStyle: "italic" }}>and</em> sports,
+              from a single USDC pool.
+            </p>
+          </div>
 
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 32 }}>
+            {["20× leverage", "USDC-settled", "Cross-margin", "Permissionless"].map(tag => (
+              <span key={tag} style={{
+                fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--text-3)",
+                padding: "6px 12px", borderRadius: 999,
+                border: "1px solid #333", background: "rgba(12,12,12,0.75)",
+                letterSpacing: "0.06em", textTransform: "uppercase",
+              }}>{tag}</span>
+            ))}
+          </div>
+
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 44 }}>
             <Link href="/perps" style={{ textDecoration: "none" }}>
               <button className="cta-primary" style={{
                 display: "flex", alignItems: "center", gap: 8,
@@ -225,22 +274,78 @@ export default function Landing() {
               <button className="cta-secondary" style={{
                 display: "flex", alignItems: "center", gap: 8,
                 padding: "13px 26px", borderRadius: 10,
-                border: "1px solid #222", background: "none",
-                color: "#888", fontSize: 14, fontWeight: 500, cursor: "pointer",
+                border: "1px solid #444",
+                fontSize: 14, fontWeight: 500, cursor: "pointer",
                 fontFamily: "var(--font-sans)",
               }}>
                 Sports Markets
               </button>
             </Link>
           </div>
+
+          {/* Inline hero stats — classic grid strip */}
+          <div style={{
+            display: "grid", gridTemplateColumns: "repeat(4, 1fr)",
+            border: "1px solid #2a2a2a", borderRadius: 12, overflow: "hidden",
+            maxWidth: 520, background: "rgba(10,10,10,0.85)", backdropFilter: "blur(8px)",
+          }}>
+            {[
+              { val: sol.price > 0 ? `$${sol.price.toFixed(0)}` : "—", label: "SOL mark" },
+              { val: "20×", label: "Max lev." },
+              { val: "3", label: "Programs" },
+              { val: "$5k", label: "Demo fund" },
+            ].map(({ val, label }, i) => (
+              <div key={label} style={{
+                padding: "16px 14px", textAlign: "center",
+                borderRight: i < 3 ? "1px solid #2a2a2a" : "none",
+              }}>
+                <div style={{
+                  fontFamily: "var(--font-mono)", fontSize: 15, fontWeight: 700,
+                  color: "var(--text-1)", letterSpacing: "-0.02em", marginBottom: 4,
+                }}>{val}</div>
+                <div style={{
+                  fontSize: 9, color: "var(--text-label)", textTransform: "uppercase",
+                  letterSpacing: "0.12em", fontFamily: "var(--font-sans)",
+                }}>{label}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Protocol strip */}
+          <div style={{
+            display: "flex", alignItems: "center", gap: 20, marginTop: 28,
+            paddingTop: 24, borderTop: "1px solid #2a2a2a", maxWidth: 520,
+          }}>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--text-mono-dim)", textTransform: "uppercase", letterSpacing: "0.14em" }}>
+              Built on
+            </span>
+            {["Solana", "Anchor", "USDC"].map(name => (
+              <span key={name} style={{
+                fontFamily: "var(--font-sans)", fontSize: 12, color: "var(--text-3)",
+                letterSpacing: "0.02em",
+              }}>{name}</span>
+            ))}
+          </div>
         </div>
 
         {/* Right: Live mini terminal */}
         <div style={{
-          background: "#0b0b0b", border: "1px solid #1c1c1c", borderRadius: 18,
+          background: "rgba(11,11,11,0.92)", border: "1px solid #333", borderRadius: 18,
           overflow: "hidden", animation: "fade-up 0.7s 0.12s ease both",
-          boxShadow: "0 40px 80px rgba(0,0,0,0.6)",
+          boxShadow: "0 40px 80px rgba(0,0,0,0.75)",
+          position: "relative", zIndex: 2, backdropFilter: "blur(12px)",
         }}>
+          {/* Corner label */}
+          <div style={{
+            position: "absolute", top: -1, right: 20, zIndex: 2,
+            padding: "5px 12px", background: "#0a0a0a",
+            border: "1px solid #333", borderTop: "none",
+            borderRadius: "0 0 8px 8px",
+            fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--text-label)",
+            textTransform: "uppercase", letterSpacing: "0.12em",
+          }}>
+            Terminal · v0.1
+          </div>
           {/* Terminal bar */}
           <div style={{
             display: "flex", alignItems: "center", justifyContent: "space-between",
@@ -253,7 +358,7 @@ export default function Landing() {
                   <div key={c} style={{ width: 8, height: 8, borderRadius: "50%", background: c, opacity: 0.6 }} />
                 ))}
               </div>
-              <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "#333", marginLeft: 4 }}>SOL-PERP · ORDER BOOK</span>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--text-mono-dim)", marginLeft: 4 }}>SOL-PERP · ORDER BOOK</span>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               {sol.price > 0 && (
@@ -275,8 +380,8 @@ export default function Landing() {
 
           {/* Column labels */}
           <div style={{ display: "flex", justifyContent: "space-between", padding: "5px 14px 4px", borderBottom: "1px solid #111" }}>
-            <span style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "#2a2a2a", textTransform: "uppercase", letterSpacing: "0.1em" }}>Price</span>
-            <span style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "#2a2a2a", textTransform: "uppercase", letterSpacing: "0.1em" }}>Size</span>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--text-mono-dim)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Price</span>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--text-mono-dim)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Size</span>
           </div>
 
           {/* Asks */}
@@ -285,7 +390,7 @@ export default function Landing() {
               <div key={`a${i}`} style={{ position: "relative", display: "flex", justifyContent: "space-between", padding: "3px 14px" }}>
                 <div style={{ position: "absolute", inset: 0, right: 0, left: "auto", width: `${(size / maxAsk) * 55}%`, background: "rgba(239,68,68,0.07)" }} />
                 <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "#ef4444", position: "relative" }}>{price.toFixed(2)}</span>
-                <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "#2a2a2a", position: "relative" }}>{size >= 1000 ? (size / 1000).toFixed(1) + "k" : size.toFixed(1)}</span>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-4)", position: "relative" }}>{size >= 1000 ? (size / 1000).toFixed(1) + "k" : size.toFixed(1)}</span>
               </div>
             ))}
           </div>
@@ -300,7 +405,7 @@ export default function Landing() {
             <span style={{ fontFamily: "var(--font-mono)", fontSize: 14, fontWeight: 700, color: "#f2f2f2", letterSpacing: "-0.01em" }}>
               {sol.price > 0 ? `$${sol.price.toFixed(2)}` : "—"}
             </span>
-            <span style={{ fontFamily: "var(--font-mono)", fontSize: 8, color: "#2a2a2a", textTransform: "uppercase", letterSpacing: "0.12em" }}>MARK</span>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: 8, color: "var(--text-mono-dim)", textTransform: "uppercase", letterSpacing: "0.12em" }}>MARK</span>
           </div>
 
           {/* Bids */}
@@ -309,30 +414,30 @@ export default function Landing() {
               <div key={`b${i}`} style={{ position: "relative", display: "flex", justifyContent: "space-between", padding: "3px 14px" }}>
                 <div style={{ position: "absolute", inset: 0, right: 0, left: "auto", width: `${(size / maxBid) * 55}%`, background: "rgba(34,197,94,0.07)" }} />
                 <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "#22c55e", position: "relative" }}>{price.toFixed(2)}</span>
-                <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "#2a2a2a", position: "relative" }}>{size >= 1000 ? (size / 1000).toFixed(1) + "k" : size.toFixed(1)}</span>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-4)", position: "relative" }}>{size >= 1000 ? (size / 1000).toFixed(1) + "k" : size.toFixed(1)}</span>
               </div>
             ))}
           </div>
 
           {/* Active bet preview */}
           <div style={{ padding: "12px 14px", borderTop: "1px solid #161616", background: "#0d0d0d" }}>
-            <div style={{ fontSize: 9, color: "#2a2a2a", fontFamily: "var(--font-mono)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8 }}>
+            <div style={{ fontSize: 9, color: "var(--text-mono-dim)", fontFamily: "var(--font-mono)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8 }}>
               Cross-margin active
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
                   <span style={{ fontSize: 12 }}>📈</span>
-                  <span style={{ fontSize: 10, color: "#555", fontFamily: "var(--font-sans)" }}>SOL-PERP Long 5×</span>
+                  <span style={{ fontSize: 10, color: "var(--text-3)", fontFamily: "var(--font-sans)" }}>SOL-PERP Long 5×</span>
                 </div>
                 <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "#22c55e" }}>+$142.50</span>
               </div>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
                   <span style={{ fontSize: 12 }}>🏀</span>
-                  <span style={{ fontSize: 10, color: "#555", fontFamily: "var(--font-sans)" }}>OKC YES · 1.69×</span>
+                  <span style={{ fontSize: 10, color: "var(--text-3)", fontFamily: "var(--font-sans)" }}>OKC YES · 1.69×</span>
                 </div>
-                <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "#444" }}>-$250</span>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--text-3)" }}>-$250</span>
               </div>
             </div>
           </div>
@@ -354,7 +459,40 @@ export default function Landing() {
             </Link>
           </div>
         </div>
+
+        {/* Scroll cue */}
+        <div style={{
+          position: "absolute", bottom: 32, left: "50%", transform: "translateX(-50%)",
+          display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
+          animation: "fade-in 1.2s 0.8s ease both", opacity: 0,
+          animationFillMode: "forwards", zIndex: 1,
+        }}>
+          <span style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--text-mono-dim)", letterSpacing: "0.18em", textTransform: "uppercase" }}>
+            Scroll
+          </span>
+          <div style={{ width: 1, height: 32, background: "linear-gradient(to bottom, #666, transparent)" }} />
+        </div>
       </section>
+
+      {/* ── HERO QUOTE STRIP ──────────────────────────────────────────── */}
+      <div style={{
+        borderTop: "1px solid #161616", borderBottom: "1px solid #161616",
+        background: "#0a0a0a", padding: "28px 48px", textAlign: "center",
+      }}>
+        <p style={{
+          margin: 0, fontFamily: "var(--font-serif)", fontStyle: "italic",
+          fontSize: "clamp(18px, 2.2vw, 26px)", color: "var(--text-2)",
+          letterSpacing: "-0.01em", lineHeight: 1.4, maxWidth: 720, marginInline: "auto",
+        }}>
+          &ldquo;One pool. Two products. Your sports win pays for your perp loss.&rdquo;
+        </p>
+        <div style={{
+          marginTop: 14, fontFamily: "var(--font-mono)", fontSize: 9,
+          color: "var(--text-mono-dim)", letterSpacing: "0.2em", textTransform: "uppercase",
+        }}>
+          Cross-margin · Solana native · Zero protocol deps
+        </div>
+      </div>
 
       {/* ── TICKER ────────────────────────────────────────────────────── */}
       <div style={{
@@ -364,7 +502,7 @@ export default function Landing() {
         <div style={{ display: "flex", animation: "ticker 40s linear infinite", width: "max-content" }}>
           {[...TICKER, ...TICKER].map((item, i) => (
             <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 0 }}>
-              <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "#383838", padding: "0 28px", whiteSpace: "nowrap" }}>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-3)", padding: "0 28px", whiteSpace: "nowrap" }}>
                 {item}
               </span>
               <span style={{ color: "#1e1e1e", fontSize: 14, lineHeight: 1 }}>·</span>
@@ -395,7 +533,7 @@ export default function Landing() {
               }}>
                 <Counter to={to} prefix={prefix} suffix={suffix} decimals={decimals} />
               </div>
-              <div style={{ fontSize: 11, color: "#333", textTransform: "uppercase", letterSpacing: "0.14em", fontFamily: "var(--font-sans)" }}>{label}</div>
+              <div style={{ fontSize: 11, color: "var(--text-label)", textTransform: "uppercase", letterSpacing: "0.14em", fontFamily: "var(--font-sans)" }}>{label}</div>
             </div>
           ))}
         </div>
@@ -404,7 +542,7 @@ export default function Landing() {
       {/* ── THE INSIGHT ───────────────────────────────────────────────── */}
       <section style={{ maxWidth: 1280, margin: "0 auto", padding: "120px 48px" }}>
         <div style={{
-          fontSize: 10, color: "#2a2a2a", textTransform: "uppercase",
+          fontSize: 10, color: "var(--text-mono-dim)", textTransform: "uppercase",
           letterSpacing: "0.22em", fontFamily: "var(--font-mono)", marginBottom: 28,
         }}>
           The key insight
@@ -419,10 +557,10 @@ export default function Landing() {
             }}>
               Sports wins cover
               <br />
-              <span style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", fontWeight: 400, color: "#444" }}>your perp losses.</span>
+              <span style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", fontWeight: 400, color: "var(--text-serif-accent)" }}>your perp losses.</span>
             </h2>
 
-            <p style={{ fontSize: 15, color: "#555", lineHeight: 1.85, marginBottom: 32 }}>
+            <p style={{ fontSize: 15, color: "var(--text-2)", lineHeight: 1.85, marginBottom: 32 }}>
               Every dollar you put in sits in one shared USDC vault.{" "}
               <code style={{ fontFamily: "var(--font-mono)", color: "#22c55e", fontSize: 13 }}>cross_margin</code> tracks
               your total equity across perp positions and sports bets simultaneously.
@@ -545,7 +683,7 @@ export default function Landing() {
       {/* ── PRODUCTS ──────────────────────────────────────────────────── */}
       <section style={{ borderTop: "1px solid #161616", padding: "100px 48px", maxWidth: 1280, margin: "0 auto" }}>
         <div style={{
-          fontSize: 10, color: "#2a2a2a", textTransform: "uppercase",
+          fontSize: 10, color: "var(--text-mono-dim)", textTransform: "uppercase",
           letterSpacing: "0.22em", fontFamily: "var(--font-mono)", marginBottom: 52,
         }}>
           What you can trade

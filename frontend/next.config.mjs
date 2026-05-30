@@ -1,6 +1,14 @@
 
 export default {
   reactStrictMode: true,
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
+    ],
+  },
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001",
     NEXT_PUBLIC_RPC: process.env.NEXT_PUBLIC_RPC ?? "https://api.devnet.solana.com",
