@@ -4,45 +4,124 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Reset ─────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: #0a0a0a;
+  color: #f0f0f0;
+  font-family: var(--font-sans);
+  height: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Design tokens ─────────────────────────────── */
 :root {
   --font-sans: 'DM Sans', system-ui, sans-serif;
   --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
   --font-serif: 'Instrument Serif', Georgia, serif;
+
+  --bg:        #0a0a0a;
+  --bg-2:      #0d0d0d;
+  --bg-3:      #111111;
+  --border:    #161616;
+  --border-2:  #1e1e1e;
+  --border-3:  #2a2a2a;
+  --text-1:    #f0f0f0;
+  --text-2:    #888888;
+  --text-3:    #444444;
+  --text-4:    #2a2a2a;
+  --green:     #22c55e;
+  --green-dim: rgba(34,197,94,0.08);
+  --red:       #ef4444;
+  --red-dim:   rgba(239,68,68,0.08);
+  --blue:      #3b82f6;
+  --amber:     #f59e0b;
 }
 
-* { box-sizing: border-box; }
-
-body {
-  font-family: var(--font-sans);
-  background: #0a0a0a;
-  color: #f0f0f0;
-  margin: 0;
-}
-
+/* ── Scrollbar ─────────────────────────────────── */
 ::-webkit-scrollbar { width: 3px; height: 3px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 2px; }
+::-webkit-scrollbar-thumb { background: #222; border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: #333; }
 
+/* ── Wallet adapter overrides ──────────────────── */
 .wallet-adapter-button {
   font-family: var(--font-sans) !important;
   font-size: 12px !important;
   font-weight: 600 !important;
   padding: 6px 14px !important;
-  border-radius: 6px !important;
-  height: auto !important;
-  line-height: 1.5 !important;
-  background: #ffffff !important;
-  color: #000000 !important;
+  border-radius: 8px !important;
+  height: 32px !important;
+  line-height: 1 !important;
+  background: #f0f0f0 !important;
+  color: #000 !important;
   border: none !important;
+  transition: background 0.15s !important;
 }
-.wallet-adapter-button:hover { background: #e5e5e5 !important; }
+.wallet-adapter-button:hover:not([disabled]) {
+  background: #d4d4d4 !important;
+}
 .wallet-adapter-button:not(.wallet-adapter-button-trigger) {
-  background: #1a1a1a !important;
+  background: #161616 !important;
   color: #f0f0f0 !important;
   border: 1px solid #2a2a2a !important;
 }
-.wallet-adapter-modal-wrapper {
-  background: #111 !important;
-  border: 1px solid #222 !important;
-  border-radius: 12px !important;
+.wallet-adapter-button:not(.wallet-adapter-button-trigger):hover {
+  background: #1e1e1e !important;
 }
+.wallet-adapter-button-start-icon,
+.wallet-adapter-button-end-icon { display: none !important; }
+
+.wallet-adapter-modal-overlay {
+  background: rgba(0,0,0,0.85) !important;
+  backdrop-filter: blur(6px) !important;
+}
+.wallet-adapter-modal-wrapper {
+  background: #0d0d0d !important;
+  border: 1px solid #222 !important;
+  border-radius: 16px !important;
+  box-shadow: 0 0 80px rgba(0,0,0,0.8) !important;
+}
+.wallet-adapter-modal-title {
+  color: #f0f0f0 !important;
+  font-family: var(--font-sans) !important;
+}
+.wallet-adapter-modal-list li {
+  background: #111 !important;
+  border: 1px solid #1e1e1e !important;
+  border-radius: 10px !important;
+}
+.wallet-adapter-modal-list li:hover {
+  background: #1a1a1a !important;
+  border-color: #333 !important;
+}
+.wallet-adapter-modal-list-more-button {
+  background: none !important;
+  color: #555 !important;
+}
+
+/* ── Utility classes ───────────────────────────── */
+.glass {
+  background: rgba(255,255,255,0.02);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.glow-green { box-shadow: 0 0 20px rgba(34,197,94,0.15); }
+.glow-blue  { box-shadow: 0 0 20px rgba(59,130,246,0.15); }
+
+/* ── Subtle dot-grid background for landing ────── */
+.dot-grid {
+  background-image: radial-gradient(circle, #1e1e1e 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* ── Animations ────────────────────────────────── */
+@keyframes spin    { to { transform: rotate(360deg); } }
+@keyframes pulse   { 0%,100%{opacity:1} 50%{opacity:0.3} }
+@keyframes fadeIn  { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+@keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+
+.animate-fade-in { animation: fadeIn 0.4s ease both; }
