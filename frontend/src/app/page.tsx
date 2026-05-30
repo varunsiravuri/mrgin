@@ -98,14 +98,15 @@ export default function Landing() {
 
   const TICKER = [
     sol.price > 0 ? `SOL  $${sol.price.toFixed(2)}  ${isUp ? "+" : ""}${sol.change.toFixed(2)}%` : "SOL-PERP  Live",
-    "NBA Finals  ·  OKC Thunder  59% YES  1.69×",
+    "IPL Final  ·  RCB vs GT  53% YES  1.89×  ·  TODAY",
+    "IPL Final  ·  Kohli 50+ runs  58%  1.72×",
     "Champions League  ·  Real Madrid  32%  3.12×",
     "20× leverage  ·  USDC-settled  ·  Solana",
     "F1 2026  ·  Verstappen  37% YES  2.70×",
     "Funding rate  +0.0100% /hr  ·  Permissionless",
     "Super Bowl LXI  ·  Chiefs  53%  1.88×",
     "3 Anchor programs  ·  Zero protocol deps",
-    "ICC T20 2026  ·  India  65% YES  1.53×",
+    "LoL Worlds  ·  T1  57% YES  1.75×",
   ];
 
   return (
@@ -241,7 +242,7 @@ export default function Landing() {
               fontSize: 17, color: "var(--text-2)", lineHeight: 1.75,
               margin: 0, fontFamily: "var(--font-sans)",
             }}>
-              Long SOL at 20×. Bet the NBA Finals. Your winnings automatically
+              Long SOL at 20×. Bet the IPL Final tonight. Your winnings automatically
               cushion your losses — across perps <em style={{ color: "var(--text-1)", fontStyle: "italic" }}>and</em> sports,
               from a single USDC pool.
             </p>
@@ -768,7 +769,7 @@ export default function Landing() {
               </h2>
 
               <p style={{ fontSize: 13, color: "#555", lineHeight: 1.8, margin: "0 0 auto" }}>
-                YES or NO on NBA, Champions League, F1, UFC, cricket, and NFL.
+                YES or NO on IPL, NBA, Champions League, F1, UFC, cricket, esports, and NFL.
                 Every bet shares the same vault as your perp positions — your sports winnings
                 actively offset perp drawdown.
               </p>
@@ -776,9 +777,9 @@ export default function Landing() {
               {/* Live markets */}
               <div style={{ display: "flex", flexDirection: "column", gap: 6, margin: "32px 0 28px" }}>
                 {[
-                  { e: "🏀", q: "OKC win 2026 NBA", yes: 59, odds: "1.69×", color: "#22c55e" },
-                  { e: "⚽", q: "Real Madrid win UCL", yes: 32, odds: "3.12×", color: "#ef4444" },
-                  { e: "🏈", q: "Chiefs win Super Bowl LXI", yes: 53, odds: "1.88×", color: "#22c55e" },
+                  { e: "🏏", q: "RCB beat GT · IPL Final", yes: 53, odds: "1.89×", color: "#22c55e" },
+                  { e: "🏏", q: "Kohli 50+ · IPL Final", yes: 58, odds: "1.72×", color: "#22c55e" },
+                  { e: "🏀", q: "OKC win 2026 NBA", yes: 59, odds: "1.69×", color: "#3b82f6" },
                 ].map(({ e, q, yes, odds, color }) => (
                   <div key={q} style={{
                     display: "flex", alignItems: "center", gap: 10,

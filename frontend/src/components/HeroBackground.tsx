@@ -173,18 +173,18 @@ export function HeroBackground() {
         style={{ width: 200, padding: "14px 16px", transform: "rotate(-5deg)", opacity: 0.5 }}
       >
         <div style={{ fontFamily: "var(--font-mono)", fontSize: 8, color: "#333", letterSpacing: "0.12em", marginBottom: 10 }}>
-          NBA FINALS · YES
+          IPL FINAL · YES
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-          <span style={{ fontSize: 18 }}>🏀</span>
-          <span style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: "#888" }}>OKC Thunder</span>
+          <span style={{ fontSize: 18 }}>🏏</span>
+          <span style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: "#888" }}>RCB vs GT</span>
         </div>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-          <span style={{ fontFamily: "var(--font-mono)", fontSize: 20, fontWeight: 700, color: "#3b82f6" }}>59%</span>
-          <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "#555" }}>1.69×</span>
+          <span style={{ fontFamily: "var(--font-mono)", fontSize: 20, fontWeight: 700, color: "#3b82f6" }}>53%</span>
+          <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "#555" }}>1.89×</span>
         </div>
         <div style={{ marginTop: 10, height: 4, background: "#161616", borderRadius: 2, overflow: "hidden" }}>
-          <div style={{ width: "59%", height: "100%", background: "#3b82f6" }} />
+          <div style={{ width: "53%", height: "100%", background: "#3b82f6" }} />
         </div>
       </FloatingCard>
 

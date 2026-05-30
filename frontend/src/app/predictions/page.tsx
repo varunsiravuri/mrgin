@@ -11,6 +11,62 @@ import { PaperWallet } from "@/components/PaperWallet";
 // ─── Sports Markets ──────────────────────────────────────────────────────────
 const SPORTS_MARKETS = [
   {
+    id: "ipl-final-2026",
+    sport: "IPL",
+    emoji: "🏏",
+    league: "IPL 2026 Final · Today",
+    question: "Will Royal Challengers Bengaluru (RCB) beat Gujarat Titans (GT) in the IPL 2026 Final?",
+    resolvesAt: new Date("2026-05-31T23:59:59").getTime(),
+    yesPool: 312_400,
+    noPool: 278_600,
+    totalPool: 591_000,
+    status: "Open",
+    outcome: null,
+    featured: true,
+    recentBets: [
+      { side: "yes", amount: 5000, ago: "1m" },
+      { side: "yes", amount: 2500, ago: "3m" },
+      { side: "no", amount: 1800, ago: "5m" },
+      { side: "yes", amount: 10000, ago: "9m" },
+    ],
+  },
+  {
+    id: "ipl-kohli-runs",
+    sport: "IPL",
+    emoji: "🏏",
+    league: "IPL 2026 Final",
+    question: "Will Virat Kohli score 50+ runs in the IPL 2026 Final (RCB vs GT)?",
+    resolvesAt: new Date("2026-05-31T23:59:59").getTime(),
+    yesPool: 198_200,
+    noPool: 142_800,
+    totalPool: 341_000,
+    status: "Open",
+    outcome: null,
+    featured: false,
+    recentBets: [
+      { side: "yes", amount: 3200, ago: "2m" },
+      { side: "no", amount: 900, ago: "7m" },
+    ],
+  },
+  {
+    id: "ipl-gt-powerplay",
+    sport: "IPL",
+    emoji: "🏏",
+    league: "IPL 2026 Final",
+    question: "Will Gujarat Titans score 55+ runs in the powerplay (overs 1–6)?",
+    resolvesAt: new Date("2026-05-31T23:59:59").getTime(),
+    yesPool: 87_400,
+    noPool: 94_600,
+    totalPool: 182_000,
+    status: "Open",
+    outcome: null,
+    featured: false,
+    recentBets: [
+      { side: "no", amount: 600, ago: "4m" },
+      { side: "yes", amount: 450, ago: "11m" },
+    ],
+  },
+  {
     id: "nba-1",
     sport: "NBA",
     emoji: "🏀",
@@ -22,7 +78,7 @@ const SPORTS_MARKETS = [
     totalPool: 241_200,
     status: "Open",
     outcome: null,
-    featured: true,
+    featured: false,
     recentBets: [
       { side: "yes", amount: 500, ago: "2m" },
       { side: "no", amount: 200, ago: "5m" },
@@ -49,6 +105,24 @@ const SPORTS_MARKETS = [
     ],
   },
   {
+    id: "epl-1",
+    sport: "EPL",
+    emoji: "⚽",
+    league: "Premier League 2025/26",
+    question: "Will Arsenal win the 2025-26 Premier League title?",
+    resolvesAt: new Date("2026-05-24").getTime(),
+    yesPool: 124_300,
+    noPool: 156_700,
+    totalPool: 281_000,
+    status: "Open",
+    outcome: null,
+    featured: false,
+    recentBets: [
+      { side: "yes", amount: 800, ago: "3m" },
+      { side: "no", amount: 1100, ago: "12m" },
+    ],
+  },
+  {
     id: "f1-1",
     sport: "F1",
     emoji: "🏎️",
@@ -64,6 +138,23 @@ const SPORTS_MARKETS = [
     recentBets: [
       { side: "no", amount: 400, ago: "3m" },
       { side: "yes", amount: 150, ago: "9m" },
+    ],
+  },
+  {
+    id: "f1-monaco",
+    sport: "F1",
+    emoji: "🏎️",
+    league: "Monaco GP 2026",
+    question: "Will Charles Leclerc win the 2026 Monaco Grand Prix?",
+    resolvesAt: new Date("2026-06-07").getTime(),
+    yesPool: 41_200,
+    noPool: 58_800,
+    totalPool: 100_000,
+    status: "Open",
+    outcome: null,
+    featured: false,
+    recentBets: [
+      { side: "yes", amount: 350, ago: "6m" },
     ],
   },
   {
@@ -85,6 +176,23 @@ const SPORTS_MARKETS = [
     ],
   },
   {
+    id: "tennis-wimbledon",
+    sport: "Tennis",
+    emoji: "🎾",
+    league: "Wimbledon 2026",
+    question: "Will Jannik Sinner win Wimbledon 2026?",
+    resolvesAt: new Date("2026-07-12").getTime(),
+    yesPool: 72_500,
+    noPool: 67_500,
+    totalPool: 140_000,
+    status: "Open",
+    outcome: null,
+    featured: false,
+    recentBets: [
+      { side: "yes", amount: 420, ago: "8m" },
+    ],
+  },
+  {
     id: "ufc-1",
     sport: "UFC",
     emoji: "🥊",
@@ -100,6 +208,23 @@ const SPORTS_MARKETS = [
     recentBets: [
       { side: "yes", amount: 800, ago: "7m" },
       { side: "no", amount: 350, ago: "20m" },
+    ],
+  },
+  {
+    id: "ufc-311",
+    sport: "UFC",
+    emoji: "🥊",
+    league: "UFC 311",
+    question: "Will Islam Makhachev successfully defend his lightweight title?",
+    resolvesAt: new Date("2026-07-19").getTime(),
+    yesPool: 61_400,
+    noPool: 38_600,
+    totalPool: 100_000,
+    status: "Open",
+    outcome: null,
+    featured: false,
+    recentBets: [
+      { side: "yes", amount: 550, ago: "5m" },
     ],
   },
   {
@@ -122,6 +247,23 @@ const SPORTS_MARKETS = [
     ],
   },
   {
+    id: "mlb-1",
+    sport: "MLB",
+    emoji: "⚾",
+    league: "World Series 2026",
+    question: "Will the Los Angeles Dodgers win the 2026 World Series?",
+    resolvesAt: new Date("2026-11-01").getTime(),
+    yesPool: 98_700,
+    noPool: 101_300,
+    totalPool: 200_000,
+    status: "Open",
+    outcome: null,
+    featured: false,
+    recentBets: [
+      { side: "yes", amount: 700, ago: "10m" },
+    ],
+  },
+  {
     id: "cricket-1",
     sport: "Cricket",
     emoji: "🏏",
@@ -137,6 +279,58 @@ const SPORTS_MARKETS = [
     recentBets: [
       { side: "yes", amount: 1500, ago: "2m" },
       { side: "yes", amount: 400, ago: "10m" },
+    ],
+  },
+  {
+    id: "cricket-ashes",
+    sport: "Cricket",
+    emoji: "🏏",
+    league: "The Ashes 2026",
+    question: "Will Australia retain the Ashes urn in the 2026 series?",
+    resolvesAt: new Date("2026-08-30").getTime(),
+    yesPool: 112_000,
+    noPool: 88_000,
+    totalPool: 200_000,
+    status: "Open",
+    outcome: null,
+    featured: false,
+    recentBets: [
+      { side: "yes", amount: 900, ago: "14m" },
+    ],
+  },
+  {
+    id: "esports-1",
+    sport: "Esports",
+    emoji: "🎮",
+    league: "LoL Worlds 2026",
+    question: "Will T1 win the 2026 League of Legends World Championship?",
+    resolvesAt: new Date("2026-11-08").getTime(),
+    yesPool: 143_200,
+    noPool: 106_800,
+    totalPool: 250_000,
+    status: "Open",
+    outcome: null,
+    featured: false,
+    recentBets: [
+      { side: "yes", amount: 1200, ago: "1m" },
+      { side: "no", amount: 600, ago: "9m" },
+    ],
+  },
+  {
+    id: "golf-1",
+    sport: "Golf",
+    emoji: "⛳",
+    league: "Masters 2027",
+    question: "Will Scottie Scheffler win the 2027 Masters Tournament?",
+    resolvesAt: new Date("2027-04-12").getTime(),
+    yesPool: 45_600,
+    noPool: 54_400,
+    totalPool: 100_000,
+    status: "Open",
+    outcome: null,
+    featured: false,
+    recentBets: [
+      { side: "no", amount: 200, ago: "18m" },
     ],
   },
   {
@@ -156,7 +350,7 @@ const SPORTS_MARKETS = [
   },
 ];
 
-const SPORT_FILTERS = ["All", "NBA", "Soccer", "F1", "Tennis", "UFC", "NFL", "Cricket"] as const;
+const SPORT_FILTERS = ["All", "IPL", "Cricket", "NBA", "Soccer", "EPL", "F1", "Tennis", "UFC", "NFL", "MLB", "Esports", "Golf"] as const;
 type SportFilter = typeof SPORT_FILTERS[number];
 
 interface Market {
@@ -532,14 +726,16 @@ function MarketCard({ market, onBet }: { market: Market; onBet: (side: "yes" | "
 
 // ─── Live Feed ──────────────────────────────────────────────────────────────
 const LIVE_FEED = [
-  { sport: "🏀", side: "yes", amount: 500, question: "OKC Thunder NBA Champs", ago: 8 },
-  { sport: "⚽", side: "no", amount: 1200, question: "Real Madrid UCL", ago: 23 },
-  { sport: "🏈", side: "yes", amount: 2000, question: "Chiefs Super Bowl LXI", ago: 41 },
-  { sport: "🏏", side: "yes", amount: 1500, question: "India T20 World Cup", ago: 67 },
-  { sport: "🎾", side: "yes", amount: 600, question: "Alcaraz French Open", ago: 94 },
-  { sport: "🥊", side: "yes", amount: 800, question: "Jones KO/TKO win", ago: 118 },
-  { sport: "🏎️", side: "no", amount: 400, question: "Verstappen F1 2026", ago: 152 },
-  { sport: "🏀", side: "no", amount: 200, question: "OKC Thunder NBA Champs", ago: 189 },
+  { sport: "🏏", side: "yes", amount: 5000, question: "RCB beat GT · IPL Final", ago: 4 },
+  { sport: "🏏", side: "yes", amount: 2500, question: "Kohli 50+ · IPL Final", ago: 12 },
+  { sport: "🏏", side: "no", amount: 1800, question: "RCB beat GT · IPL Final", ago: 28 },
+  { sport: "🏀", side: "yes", amount: 500, question: "OKC Thunder NBA Champs", ago: 45 },
+  { sport: "⚽", side: "no", amount: 1200, question: "Real Madrid UCL", ago: 67 },
+  { sport: "🏈", side: "yes", amount: 2000, question: "Chiefs Super Bowl LXI", ago: 89 },
+  { sport: "🎮", side: "yes", amount: 1200, question: "T1 LoL Worlds 2026", ago: 102 },
+  { sport: "🏎️", side: "no", amount: 400, question: "Verstappen F1 2026", ago: 134 },
+  { sport: "⚽", side: "yes", amount: 800, question: "Arsenal Premier League", ago: 156 },
+  { sport: "🎾", side: "yes", amount: 600, question: "Alcaraz French Open", ago: 178 },
 ];
 
 function LiveFeed() {
