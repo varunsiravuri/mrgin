@@ -13,6 +13,7 @@ import { Positions } from "@/components/Positions";
 import { Portfolio } from "@/components/Portfolio";
 import { MarketSelector } from "@/components/MarketSelector";
 import { IntervalSelector, type Interval } from "@/components/IntervalSelector";
+import { PaperWallet } from "@/components/PaperWallet";
 
 type Tab = "Trade" | "Portfolio";
 
@@ -93,6 +94,8 @@ export default function PerpsPage() {
             <span style={{ fontSize: 10, color: "var(--text-4)", fontFamily: "var(--font-mono)" }}>devnet</span>
           </div>
 
+          <PaperWallet markPrices={{ [market ?? ""]: markPrice }} />
+
           <Link href="/docs" style={{ textDecoration: "none" }}>
             <span style={{ fontSize: 12, color: "var(--text-4)", padding: "4px 8px", cursor: "pointer", transition: "color 0.12s" }}
               onMouseEnter={e => ((e.target as HTMLElement).style.color = "var(--text-2)")}
@@ -158,7 +161,7 @@ export default function PerpsPage() {
 
               {/* BOTTOM: Positions */}
               <div style={{ height: 190, flexShrink: 0, borderTop: "1px solid var(--border)", overflow: "hidden" }}>
-                <Positions market={market} />
+                <Positions market={market} markPrice={markPrice} />
               </div>
             </>
           )}

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { WalletProviders } from "@/components/WalletProviders";
+import { PaperTradingProvider } from "@/lib/paper-trading";
 import { Toaster } from "react-hot-toast";
 
 export const metadata: Metadata = {
@@ -12,6 +13,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className="antialiased" style={{ fontFamily: "var(--font-sans)" }}>
+        <PaperTradingProvider>
         <WalletProviders>
           {children}
           <Toaster
@@ -28,6 +30,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             }}
           />
         </WalletProviders>
+        </PaperTradingProvider>
       </body>
     </html>
   );

@@ -1,108 +1,191 @@
 "use client";
-import { useWallet } from "@solana/wallet-adapter-react";
-import useSWR from "swr";
-import { fetchTrades } from "@/lib/api";
-import { cn } from "@/lib/utils";
+import { useState } from "react";
+import { usePaperTrading, PaperPosition } from "@/lib/paper-trading";
+import toast from "react-hot-toast";
+import { X } from "lucide-react";
 
-interface Trade {
-  id: number;
-  market: string;
-  owner?: string;
-  maker?: string;
-  taker?: string;
-  entryPrice?: number;
-  exitPrice?: number;
-  fillPrice?: number;
-  size: number;
-  isLong?: boolean;
-  realizedPnl?: number;
-  eventType: string;
-  timestamp: string;
-}
+export function Positions({ market, markPrice }: { market: string; markPrice: number }) {
+  const { state, closePosition } = usePaperTrading();
+  const [closing, setClosing] = useState<string | null>(null);
 
-export function Positions({ market }: { market: string }) {
-  const { publicKey } = useWallet();
-  const wallet = publicKey?.toBase58();
+  const positions = state.positions;
+  const activeBets = state.bets.filter(b => b.status === "active");
 
-  const { data: trades = [] } = useSWR<Trade[]>(
-    market ? `trades:${market}` : null,
-    () => fetchTrades(market),
-    { refreshInterval: 3000 }
-  );
+  const getPnL = (p: PaperPosition) => {
+    const mark = markPrice || p.entryPrice;
+    return p.side === "long"
+      ? (mark - p.entryPrice) / p.entryPrice * p.notional
+      : (p.entryPrice - mark) / p.entryPrice * p.notional;
+  };
 
-  const myTrades = wallet
-    ? trades.filter((t) => t.owner === wallet || t.maker === wallet || t.taker === wallet)
-    : [];
+  const totalUnrealizedPnL = positions.reduce((s, p) => s + getPnL(p), 0);
 
-  const cols = ["Type", "Size", "Entry Price", "Mark Price", "PnL", "Time", "Status"];
+  const handleClose = async (p: PaperPosition) => {
+    setClosing(p.id);
+    await new Promise(r => setTimeout(r, 300));
+    const exitPrice = markPrice * (p.side === "long" ? 0.9995 : 1.0005);
+    closePosition(p.id, exitPrice);
+    const pnl = getPnL(p);
+    toast.success(
+      `${p.side === "long" ? "↑ Long" : "↓ Short"} closed · ${pnl >= 0 ? "+" : ""}$${pnl.toFixed(2)}`,
+      { icon: pnl >= 0 ? "💚" : "🔴" }
+    );
+    setClosing(null);
+  };
+
+  const fmt = (n: number, decimals = 2) =>
+    n.toLocaleString("en-US", { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="flex items-center gap-4 px-4 py-2 border-b border-[#111] shrink-0">
-        <span className="text-xs font-semibold">Positions</span>
-        <span className="text-[10px] text-[#444]">
-          {wallet ? `${myTrades.length} trade${myTrades.length !== 1 ? "s" : ""}` : "—"}
+    <div style={{ height: "100%", display: "flex", flexDirection: "column", overflow: "hidden", background: "var(--bg)" }}>
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "8px 14px", borderBottom: "1px solid var(--border)", flexShrink: 0 }}>
+        <span style={{ fontSize: 11, fontWeight: 600, color: "var(--text-1)" }}>Positions</span>
+        <span style={{ fontSize: 10, color: "var(--text-4)", fontFamily: "var(--font-mono)" }}>
+          {positions.length > 0 ? `${positions.length} open` : "no open positions"}
         </span>
+        {positions.length > 0 && (
+          <>
+            <div style={{ width: 1, height: 12, background: "var(--border-2)" }} />
+            <span style={{ fontSize: 10, fontFamily: "var(--font-mono)", color: totalUnrealizedPnL >= 0 ? "#22c55e" : "#ef4444" }}>
+              Unrealized: {totalUnrealizedPnL >= 0 ? "+" : "-"}${fmt(Math.abs(totalUnrealizedPnL))}
+            </span>
+          </>
+        )}
+        {activeBets.length > 0 && (
+          <>
+            <div style={{ width: 1, height: 12, background: "var(--border-2)" }} />
+            <span style={{ fontSize: 10, color: "var(--text-4)" }}>{activeBets.length} active bet{activeBets.length !== 1 ? "s" : ""}</span>
+          </>
+        )}
+        <span style={{ fontSize: 9, color: "#f59e0b", fontFamily: "var(--font-mono)", background: "rgba(245,158,11,0.1)", padding: "2px 6px", borderRadius: 4, marginLeft: "auto" }}>PAPER</span>
       </div>
 
-      {!wallet ? (
-        <div className="flex-1 flex items-center justify-center">
-          <p className="text-xs text-[#2a2a2a]">Connect wallet to see positions</p>
-        </div>
-      ) : myTrades.length === 0 ? (
-        <div className="flex-1 flex items-center justify-center">
-          <p className="text-xs text-[#2a2a2a]">No positions yet</p>
+      {positions.length === 0 && activeBets.length === 0 ? (
+        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <p style={{ fontSize: 12, color: "var(--text-4)", fontFamily: "var(--font-mono)" }}>
+            No open positions · use the trade form to get started
+          </p>
         </div>
       ) : (
-        <div className="flex-1 overflow-auto">
-          <table className="w-full text-xs">
+        <div style={{ flex: 1, overflowY: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
-              <tr className="border-b border-[#111]">
-                {cols.map((c) => (
-                  <th key={c} className="text-left px-4 py-2 text-[9px] text-[#333] uppercase tracking-widest font-normal">
-                    {c}
-                  </th>
+              <tr style={{ borderBottom: "1px solid var(--border)" }}>
+                {["Side", "Symbol", "Size", "Entry", "Mark", "PnL", "ROE", "Liq. ~", "Notional", "Margin", ""].map(col => (
+                  <th key={col} style={{
+                    textAlign: "left", padding: "5px 12px",
+                    fontSize: 9, color: "var(--text-4)",
+                    textTransform: "uppercase", letterSpacing: "0.08em",
+                    fontWeight: 500, whiteSpace: "nowrap",
+                  }}>{col}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {myTrades.map((t) => {
-                const pnl = t.realizedPnl ? t.realizedPnl / 1e6 : 0;
-                const entry = (t.entryPrice ?? t.fillPrice ?? 0);
+              {positions.map(p => {
+                const pnl = getPnL(p);
+                const roe = (pnl / p.collateral) * 100;
+                const mark = markPrice || p.entryPrice;
+                const liqDelta = p.collateral / p.notional;
+                const liqPrice = p.side === "long"
+                  ? p.entryPrice * (1 - liqDelta * 0.9)
+                  : p.entryPrice * (1 + liqDelta * 0.9);
+                const isLosing = (p.side === "long" && mark < p.entryPrice) || (p.side === "short" && mark > p.entryPrice);
+
                 return (
-                  <tr key={t.id} className="border-b border-[#0d0d0d] hover:bg-[#0d0d0d] transition-colors">
-                    <td className="px-4 py-2.5">
-                      <span className={cn(
-                        "px-1.5 py-0.5 rounded text-[10px] font-semibold",
-                        t.isLong ? "bg-[#22c55e]/10 text-[#22c55e]" : "bg-[#ef4444]/10 text-[#ef4444]"
-                      )}>
-                        {t.isLong ? "Long" : "Short"}
+                  <tr key={p.id} style={{ borderBottom: "1px solid var(--border)", transition: "background 0.1s" }}
+                    onMouseEnter={e => (e.currentTarget.style.background = "var(--bg-2)")}
+                    onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+                  >
+                    <td style={{ padding: "10px 12px" }}>
+                      <span style={{
+                        display: "inline-block", padding: "2px 8px", borderRadius: 5, fontSize: 10, fontWeight: 700,
+                        background: p.side === "long" ? "rgba(34,197,94,0.1)" : "rgba(239,68,68,0.1)",
+                        color: p.side === "long" ? "#22c55e" : "#ef4444",
+                        border: `1px solid ${p.side === "long" ? "rgba(34,197,94,0.2)" : "rgba(239,68,68,0.2)"}`,
+                      }}>
+                        {p.side === "long" ? "↑ Long" : "↓ Short"}
                       </span>
                     </td>
-                    <td className="px-4 py-2.5 text-[#aaa]" style={{ fontFamily: "var(--font-mono)" }}>
-                      {(t.size / 1e6).toFixed(4)}
+                    <td style={{ padding: "10px 12px" }}>
+                      <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--text-1)", fontWeight: 600 }}>{p.symbol}</div>
+                      <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--text-4)" }}>{p.leverage}× lev</div>
                     </td>
-                    <td className="px-4 py-2.5" style={{ fontFamily: "var(--font-mono)" }}>
-                      ${entry > 0 ? entry.toFixed(2) : "—"}
+                    <td style={{ padding: "10px 12px", fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-2)" }}>
+                      {fmt(p.size, 4)}
                     </td>
-                    <td className="px-4 py-2.5 text-[#555]" style={{ fontFamily: "var(--font-mono)" }}>—</td>
-                    <td className="px-4 py-2.5" style={{ fontFamily: "var(--font-mono)", color: pnl >= 0 ? "#22c55e" : "#ef4444" }}>
-                      {pnl !== 0 ? `${pnl >= 0 ? "+" : ""}$${pnl.toFixed(2)}` : "—"}
+                    <td style={{ padding: "10px 12px", fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-2)" }}>
+                      ${fmt(p.entryPrice)}
                     </td>
-                    <td className="px-4 py-2.5 text-[#444]" style={{ fontFamily: "var(--font-mono)" }}>
-                      {new Date(t.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                    <td style={{ padding: "10px 12px", fontFamily: "var(--font-mono)", fontSize: 11, color: isLosing ? "#ef4444" : "var(--text-2)" }}>
+                      ${fmt(mark)}
                     </td>
-                    <td className="px-4 py-2.5">
-                      <span className={cn(
-                        "px-1.5 py-0.5 rounded text-[10px]",
-                        t.eventType === "opened" ? "bg-[#1a1a1a] text-[#555]" : "bg-[#111] text-[#444]"
-                      )}>
-                        {t.eventType}
-                      </span>
+                    <td style={{ padding: "10px 12px" }}>
+                      <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, fontWeight: 700, color: pnl >= 0 ? "#22c55e" : "#ef4444" }}>
+                        {pnl >= 0 ? "+" : "-"}${fmt(Math.abs(pnl))}
+                      </div>
+                    </td>
+                    <td style={{ padding: "10px 12px" }}>
+                      <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: roe >= 0 ? "#22c55e" : "#ef4444" }}>
+                        {roe >= 0 ? "+" : ""}{roe.toFixed(2)}%
+                      </div>
+                    </td>
+                    <td style={{ padding: "10px 12px", fontFamily: "var(--font-mono)", fontSize: 11, color: "#ef4444" }}>
+                      ${fmt(liqPrice)}
+                    </td>
+                    <td style={{ padding: "10px 12px", fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-3)" }}>
+                      ${fmt(p.notional)}
+                    </td>
+                    <td style={{ padding: "10px 12px", fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-3)" }}>
+                      ${fmt(p.collateral)}
+                    </td>
+                    <td style={{ padding: "10px 12px" }}>
+                      <button
+                        onClick={() => handleClose(p)}
+                        disabled={closing === p.id}
+                        style={{
+                          display: "flex", alignItems: "center", gap: 4,
+                          padding: "5px 10px", borderRadius: 6, border: "1px solid var(--border-2)",
+                          background: "none", color: "var(--text-3)",
+                          fontSize: 11, fontWeight: 600, cursor: "pointer",
+                          fontFamily: "var(--font-sans)", transition: "all 0.12s",
+                          opacity: closing === p.id ? 0.5 : 1,
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.borderColor = "#ef4444"; e.currentTarget.style.color = "#ef4444"; }}
+                        onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--border-2)"; e.currentTarget.style.color = "var(--text-3)"; }}
+                      >
+                        <X size={11} />
+                        {closing === p.id ? "Closing…" : "Close"}
+                      </button>
                     </td>
                   </tr>
                 );
               })}
+
+              {/* Active bets as rows */}
+              {activeBets.map(b => (
+                <tr key={b.id} style={{ borderBottom: "1px solid var(--border)", opacity: 0.75 }}>
+                  <td style={{ padding: "10px 12px" }}>
+                    <span style={{
+                      display: "inline-block", padding: "2px 8px", borderRadius: 5, fontSize: 10, fontWeight: 700,
+                      background: b.side === "yes" ? "rgba(34,197,94,0.1)" : "rgba(239,68,68,0.1)",
+                      color: b.side === "yes" ? "#22c55e" : "#ef4444",
+                      border: `1px solid ${b.side === "yes" ? "rgba(34,197,94,0.2)" : "rgba(239,68,68,0.2)"}`,
+                    }}>
+                      {b.side.toUpperCase()}
+                    </span>
+                  </td>
+                  <td style={{ padding: "10px 12px" }}>
+                    <div style={{ fontSize: 12, color: "var(--text-1)", fontWeight: 600 }}>{b.emoji} {b.sport}</div>
+                    <div style={{ fontSize: 9, color: "var(--text-4)", maxWidth: 160, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{b.question}</div>
+                  </td>
+                  <td colSpan={5} style={{ padding: "10px 12px", fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-3)" }}>
+                    Bet ${b.amount.toFixed(2)} @ {b.odds.toFixed(2)}× → ${b.potentialWin.toFixed(2)} if {b.side}
+                  </td>
+                  <td colSpan={4} />
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>

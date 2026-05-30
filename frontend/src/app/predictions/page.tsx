@@ -1,13 +1,12 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Activity, ChevronLeft, TrendingUp, Clock, CheckCircle, Zap, Users } from "lucide-react";
+import { Activity, ChevronLeft, Clock, CheckCircle, Zap, Users } from "lucide-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import { useWallet, useConnection } from "@solana/wallet-adapter-react";
-import { PublicKey } from "@solana/web3.js";
-import { AnchorProvider, Program, BN } from "@coral-xyz/anchor";
 import toast from "react-hot-toast";
 import { DotmSquare3 } from "@/components/ui/dotm-square-3";
+import { usePaperTrading } from "@/lib/paper-trading";
+import { PaperWallet } from "@/components/PaperWallet";
 
 // ─── Sports Markets ──────────────────────────────────────────────────────────
 const SPORTS_MARKETS = [
@@ -190,8 +189,7 @@ function timeUntil(ts: number) {
 function BetModal({ market, onClose, defaultSide = "yes" }: {
   market: Market; onClose: () => void; defaultSide?: "yes" | "no";
 }) {
-  const { publicKey, signTransaction, signAllTransactions } = useWallet();
-  const { connection } = useConnection();
+  const { placeBet, state } = usePaperTrading();
   const [amount, setAmount] = useState("25");
   const [side, setSide] = useState<"yes" | "no">(defaultSide);
   const [loading, setLoading] = useState(false);
@@ -201,28 +199,32 @@ function BetModal({ market, onClose, defaultSide = "yes" }: {
   const currentOdds = side === "yes" ? Number(yesOdds) : Number(noOdds);
   const potentialWin = (Number(amount) * currentOdds).toFixed(2);
   const profit = (Number(potentialWin) - Number(amount)).toFixed(2);
+  const insufficient = Number(amount) > state.freeBalance;
 
   const submit = async () => {
-    if (!amount || Number(amount) <= 0) { toast.error("Enter a valid amount"); return; }
+    const amt = Number(amount);
+    if (!amt || amt <= 0) { toast.error("Enter a valid amount"); return; }
+    if (amt > state.freeBalance) {
+      toast.error(`Insufficient balance — you have $${state.freeBalance.toFixed(2)}`);
+      return;
+    }
     setLoading(true);
-    const tid = toast.loading("Placing bet on-chain…");
-    try {
-      if (!publicKey || !signTransaction || !signAllTransactions) throw new Error("no wallet");
-      const anchorWallet = { publicKey, signTransaction, signAllTransactions } as any;
-      const provider = new AnchorProvider(connection, anchorWallet, {});
-      const idl = await fetch("/prediction_market.json").then(r => r.json());
-      const program = new Program(idl, provider) as any;
-      await program.methods.placeBet(
-        new BN(Math.round(Number(amount) * 1e6)),
-        side === "yes"
-      ).accounts({ market: new PublicKey(market.id) }).rpc();
-      toast.success(`${side.toUpperCase()} bet placed! 🎉`, { id: tid });
+    await new Promise(r => setTimeout(r, 500));
+    const ok = placeBet({
+      marketId: market.id,
+      question: market.question,
+      sport: market.sport,
+      emoji: market.emoji,
+      side,
+      amount: amt,
+      odds: currentOdds,
+    });
+    setLoading(false);
+    if (ok) {
+      toast.success(`${side.toUpperCase()} · $${amt} placed! Win = $${potentialWin}`, { icon: market.emoji });
       onClose();
-    } catch {
-      toast.success(`${side.toUpperCase()} bet placed! (demo)`, { id: tid });
-      onClose();
-    } finally {
-      setLoading(false);
+    } else {
+      toast.error("Failed to place bet");
     }
   };
 
@@ -232,11 +234,18 @@ function BetModal({ market, onClose, defaultSide = "yes" }: {
       <div style={{ position: "relative", background: "#0d0d0d", border: "1px solid #222", borderRadius: 20, padding: 32, width: 440, maxWidth: "92vw", zIndex: 1 }}>
 
         {/* Header */}
-        <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 24 }}>
-          <span style={{ fontSize: 28 }}>{market.emoji}</span>
-          <div>
-            <div style={{ fontSize: 10, color: "#444", fontFamily: "var(--font-mono)", marginBottom: 4 }}>{market.league}</div>
-            <p style={{ fontSize: 14, color: "#f0f0f0", lineHeight: 1.5, margin: 0, fontWeight: 500 }}>{market.question}</p>
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 20 }}>
+          <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+            <span style={{ fontSize: 28 }}>{market.emoji}</span>
+            <div>
+              <div style={{ fontSize: 10, color: "var(--text-4)", fontFamily: "var(--font-mono)", marginBottom: 4 }}>{market.league}</div>
+              <p style={{ fontSize: 14, color: "var(--text-1)", lineHeight: 1.5, margin: 0, fontWeight: 500, maxWidth: 320 }}>{market.question}</p>
+            </div>
+          </div>
+          <div style={{ flexShrink: 0 }}>
+            <div style={{ fontSize: 9, fontFamily: "var(--font-mono)", color: "#f59e0b", background: "rgba(245,158,11,0.1)", padding: "3px 7px", borderRadius: 4, border: "1px solid rgba(245,158,11,0.2)", marginBottom: 4 }}>PAPER</div>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--text-1)", fontWeight: 700 }}>${state.freeBalance.toFixed(2)}</div>
+            <div style={{ fontSize: 9, color: "var(--text-4)" }}>available</div>
           </div>
         </div>
 
@@ -303,15 +312,23 @@ function BetModal({ market, onClose, defaultSide = "yes" }: {
           ))}
         </div>
 
-        <button onClick={submit} disabled={loading || !amount} style={{
+        <button onClick={submit} disabled={loading || !amount || insufficient} style={{
           width: "100%", padding: "14px 0", borderRadius: 12, border: "none",
-          background: side === "yes" ? "#22c55e" : "#ef4444",
-          color: side === "yes" ? "#000" : "#fff",
-          fontSize: 14, fontWeight: 700, cursor: loading ? "not-allowed" : "pointer",
-          fontFamily: "var(--font-sans)", opacity: loading ? 0.6 : 1, transition: "opacity 0.15s",
+          background: insufficient ? "var(--border)" : side === "yes" ? "#22c55e" : "#ef4444",
+          color: insufficient ? "var(--text-3)" : side === "yes" ? "#000" : "#fff",
+          fontSize: 14, fontWeight: 700,
+          cursor: (loading || insufficient) ? "not-allowed" : "pointer",
+          fontFamily: "var(--font-sans)", opacity: loading ? 0.6 : 1, transition: "all 0.15s",
         }}>
-          {loading ? "Confirming…" : `Place ${side.toUpperCase()} Bet — $${amount || "0"}`}
+          {loading ? "Placing…"
+            : insufficient ? `Insufficient balance`
+            : `Place ${side.toUpperCase()} — $${amount || "0"}`}
         </button>
+        {insufficient && (
+          <div style={{ textAlign: "center", fontSize: 11, color: "#ef4444", marginTop: 8 }}>
+            Need ${(Number(amount) - state.freeBalance).toFixed(2)} more · reset account for $5,000
+          </div>
+        )}
       </div>
     </div>
   );
@@ -597,7 +614,8 @@ export default function PredictionsPage() {
         <span style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", fontSize: 17, color: "#f0f0f0" }}>mrgin</span>
         <span style={{ color: "#222", fontSize: 13 }}>/</span>
         <span style={{ color: "#666", fontSize: 12 }}>Sports Predictions</span>
-        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 16 }}>
+        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 12 }}>
+          <PaperWallet />
           {/* Global stats */}
           <div style={{ display: "flex", gap: 20, marginRight: 8 }}>
             <div style={{ textAlign: "right" }}>
