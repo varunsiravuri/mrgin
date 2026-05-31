@@ -35,3 +35,9 @@ id_rsa.pub
 # Vercel local project link
 .vercel/
 frontend/.vercel/
+
+# Local on-chain experiment (not shipped; demo mode is production)
+frontend/src/app/api/devnet/
+frontend/src/lib/onchain/
+frontend/src/lib/trading-mode.ts
+frontend/src/components/TradingBalance.tsx
