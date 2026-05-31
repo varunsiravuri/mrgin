@@ -1,100 +1,100 @@
-# mrgin — Cross-Margined Perps × Prediction Markets
+# mrgin
 
-Solana protocol with three Anchor programs sharing a single collateral pool.
+Cross-margin trading on Solana — one collateral pool for perpetual futures and prediction markets.
 
-## Programs
+**Live app:** [www.mrgin.me](https://www.mrgin.me) · **API:** [api.mrgin.me](https://api.mrgin.me)
 
-| Program | ID | Role |
-|---|---|---|
-| `perp_engine` | `FiTnBYBB...` | AMM-based perpetual futures: open/close positions, funding rate, liquidations |
-| `prediction_market` | `ARFaBkMf...` | Binary event markets: create, bet YES/NO, resolve, claim |
-| `cross_margin` | `2Khz6Ehr...` | Shared vault + portfolio health engine. THE hard part. |
+---
+
+## What it does
+
+mrgin lets traders deposit USDC once and use that balance across **perps** (SOL, BTC, ETH) and **prediction markets** (sports, events). A shared vault tracks locked vs free collateral and portfolio health, so margin isn’t siloed between products.
+
+The public demo runs in **paper mode**: sign in, get $5,000 simulated USDC, trade with live Binance prices, and see PnL persisted to your account.
+
+---
+
+## Programs (Solana devnet)
+
+| Program | Address | Role |
+|---------|---------|------|
+| `cross_margin` | `2Khz6Ehrexn5Eou1SR72UT1XGyAmv5cmAkqCYT24UDDm` | Shared vault, deposits, health checks, cross-liquidation |
+| `perp_engine` | `FiTnBYBBzxQkfiz63XGcUcPay8Z2E7nE5HXEMLPGjktB` | Perpetual futures — open/close, funding, liquidation |
+| `prediction_market` | `ARFaBkMfGFG6SNiomKPa3b2DzUe52jHa9jqPX26VukU7` | Binary markets — bet, resolve, claim |
+
+**SOL-PERP market PDA:** `3hEaxT34TiUd7tBHPyNXW8HEfvPAWmLWxAVZijXjx9qD`
+
+---
 
 ## Architecture
 
 ```
-User Wallet
-    │
-    ▼
-cross_margin::deposit()         ← user puts USDC into shared vault
-    │
-    ├── perp_engine::open_position()    ← locks margin, CPI checks cross_margin health
-    │       └── funding_rate settles hourly (anyone can crank)
-    │
-    └── prediction_market::place_bet()  ← locks collateral from same shared vault
-            └── resolves by authority or Pyth oracle
-    │
-cross_margin::check_health()    ← aggregate PnL across both products
-    │
-cross_margin::cross_liquidate() ← triggered when health < 5%
-        ├── CPI → prediction_market (forfeit worst bets first)
-        └── CPI → perp_engine::liquidate (largest positions)
+User
+  │
+  ├─► Frontend (Next.js / Vercel)     www.mrgin.me
+  │       live prices via Binance · demo accounts · trade UI
+  │
+  └─► Backend (Node / DigitalOcean)   api.mrgin.me
+          API · matching engine · bots · Helius indexer → Postgres
+                │
+                └─► Solana devnet programs (cross_margin ← perp_engine, prediction_market)
 ```
 
-## Build Order
+**Cross-margin flow:** deposit USDC → vault → open perp or place bet (margin locked) → health checked across positions → liquidate if undercollateralized.
 
-Build and test in this sequence — each program depends on the previous:
+---
 
-1. `cross_margin` first — other programs CPI into it
-2. `perp_engine` — CPIs cross_margin for health checks
-3. `prediction_market` — CPIs cross_margin for health checks
-4. Integration tests — full flow across all three
+## Stack
 
-## Key Design Decisions
+| Layer | Tech |
+|-------|------|
+| Programs | Anchor / Rust on Solana devnet |
+| Frontend | Next.js 14, wallet-adapter, lightweight-charts |
+| Backend | Fastify API, Redis order book, PM2 on DigitalOcean |
+| Indexer | Helius webhooks → Postgres |
+| Auth & demo state | Email/password sessions, Postgres (Supabase) |
 
-- **Single shared vault per user** — one `PortfolioAccount` owns all collateral
-- **Locked vs free collateral** — `locked_collateral` tracks margin in use; `free_collateral()` = total - locked
-- **Health = equity / locked notional in bps** — 10000 = 100% collateralized; liquidation at < 500 bps (5%)
-- **Funding rate** = (mark - index) / index / funding_period, accumulated into `cumulative_funding` per market
-- **Liquidation waterfall** — prediction bets first (binary, lower recovery), then perp positions by size
+---
 
-## TODO: Real Pyth Integration
+## Local development
 
-Every `get_oracle_price()` stub returns `100_000_000` (=$100 with 6 decimals).
-Replace with real Pyth parsing:
-
-```rust
-use pyth_sdk_solana::load_price_feed_from_account_info;
-let price_feed = load_price_feed_from_account_info(&ctx.accounts.oracle)?;
-let price = price_feed.get_price_no_older_than(&Clock::get()?, 60)?;
-let price_u64 = (price.price as u64) * 10u64.pow(6 - (-price.expo as u32));
-```
-
-Add to Cargo.toml: `pyth-sdk-solana = "0.10"`
-
-## Development Commands
+**Prerequisites:** Node 20+, Rust, Anchor, Solana CLI, Postgres, Redis
 
 ```bash
-# Build all programs
+# Programs
 anchor build
-
-# Sync program IDs from keypairs
-anchor keys sync
-
-# Run tests (localnet)
 anchor test
 
-# Deploy to devnet
-anchor deploy --provider.cluster devnet
+# Backend (from repo root)
+cp app/.env.example app/.env   # fill in keys — never commit
+cd app && npm install
+npm run dev:api                # :3001
 
-# Check wallet balance
-solana balance
-solana airdrop 5
+# Frontend
+cp frontend/.env.example frontend/.env.local   # optional
+cd frontend && npm install
+npm run dev                    # :3000
 ```
 
-## TODO List (Build Phase)
+Or use `./start-dev.sh` to bring up the full local stack.
 
-- [ ] Replace all `get_oracle_price()` stubs with real Pyth integration
-- [ ] Implement `close_position` PDA-signed vault transfer (return collateral ± PnL)
-- [ ] Implement `cross_margin::check_health` CPI loop over all positions
-- [ ] Implement `cross_liquidate` CPI waterfall (prediction bets → perp positions)
-- [ ] Add `register_position` / `deregister_position` to portfolio when perp opens/closes
-- [ ] Add `register_bet` / `deregister_bet` to portfolio when bet is placed/claimed
-- [ ] Add Surfpool integration tests with mainnet state (real Pyth feeds)
-- [ ] Security audit: check for integer overflow in PnL math, funding accumulation
-- [ ] Fuzz test with Trident: random open/close sequences with varying prices
+**Deploy backend:** `MRGIN_DOMAIN=api.mrgin.me DROPLET_IP=<ip> ./scripts/deploy-backend-do.sh`
 
-## Slot limits
+---
 
-`PortfolioAccount` currently supports max 8 perp positions + 8 bets per user.
-Increase by raising array sizes (costs more rent) or switch to a linked-list account pattern.
+## Repo layout
+
+```
+programs/          Anchor programs (cross_margin, perp_engine, prediction_market)
+frontend/          Next.js trading UI
+app/               API, indexer, matching engine, bots
+tests/             Anchor integration tests
+scripts/           Deploy, devnet, webhook setup
+deploy/            Nginx config for production
+```
+
+---
+
+## License
+
+See [LICENSE](LICENSE).
