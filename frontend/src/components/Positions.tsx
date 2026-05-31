@@ -1,18 +1,22 @@
 "use client";
 import { useState } from "react";
 import { usePaperTrading, PaperPosition } from "@/lib/paper-trading";
+import { getMarket } from "@/lib/markets";
+import { TokenIcon } from "@/components/TokenIcon";
 import toast from "react-hot-toast";
 import { X } from "lucide-react";
 
-export function Positions({ market, markPrice }: { market: string; markPrice: number }) {
+export function Positions({ markPrices }: { markPrices: Record<string, number> }) {
   const { state, closePosition } = usePaperTrading();
   const [closing, setClosing] = useState<string | null>(null);
 
   const positions = state.positions;
   const activeBets = state.bets.filter(b => b.status === "active");
 
+  const markOf = (p: PaperPosition) => markPrices[p.market] || p.entryPrice;
+
   const getPnL = (p: PaperPosition) => {
-    const mark = markPrice || p.entryPrice;
+    const mark = markOf(p);
     return p.side === "long"
       ? (mark - p.entryPrice) / p.entryPrice * p.notional
       : (p.entryPrice - mark) / p.entryPrice * p.notional;
@@ -23,7 +27,7 @@ export function Positions({ market, markPrice }: { market: string; markPrice: nu
   const handleClose = async (p: PaperPosition) => {
     setClosing(p.id);
     await new Promise(r => setTimeout(r, 300));
-    const exitPrice = markPrice * (p.side === "long" ? 0.9995 : 1.0005);
+    const exitPrice = markOf(p) * (p.side === "long" ? 0.9995 : 1.0005);
     closePosition(p.id, exitPrice);
     const pnl = getPnL(p);
     toast.success(
@@ -85,7 +89,8 @@ export function Positions({ market, markPrice }: { market: string; markPrice: nu
               {positions.map(p => {
                 const pnl = getPnL(p);
                 const roe = (pnl / p.collateral) * 100;
-                const mark = markPrice || p.entryPrice;
+                const mark = markOf(p);
+                const pd = getMarket(p.market).priceDecimals;
                 const liqDelta = p.collateral / p.notional;
                 const liqPrice = p.side === "long"
                   ? p.entryPrice * (1 - liqDelta * 0.9)
@@ -108,17 +113,22 @@ export function Positions({ market, markPrice }: { market: string; markPrice: nu
                       </span>
                     </td>
                     <td style={{ padding: "10px 12px" }}>
-                      <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--text-1)", fontWeight: 600 }}>{p.symbol}</div>
-                      <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--text-4)" }}>{p.leverage}× lev</div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                        <TokenIcon symbol={getMarket(p.market).logo} size={16} />
+                        <div>
+                          <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--text-1)", fontWeight: 600 }}>{p.symbol}</div>
+                          <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--text-4)" }}>{p.leverage}× lev</div>
+                        </div>
+                      </div>
                     </td>
                     <td style={{ padding: "10px 12px", fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-2)" }}>
                       {fmt(p.size, 4)}
                     </td>
-                    <td style={{ padding: "10px 12px", fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-2)" }}>
-                      ${fmt(p.entryPrice)}
+                    <td className="tnum" style={{ padding: "10px 12px", fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-2)" }}>
+                      ${fmt(p.entryPrice, pd)}
                     </td>
-                    <td style={{ padding: "10px 12px", fontFamily: "var(--font-mono)", fontSize: 11, color: isLosing ? "#ef4444" : "var(--text-2)" }}>
-                      ${fmt(mark)}
+                    <td className="tnum" style={{ padding: "10px 12px", fontFamily: "var(--font-mono)", fontSize: 11, color: isLosing ? "#ef4444" : "var(--text-2)" }}>
+                      ${fmt(mark, pd)}
                     </td>
                     <td style={{ padding: "10px 12px" }}>
                       <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, fontWeight: 700, color: pnl >= 0 ? "#22c55e" : "#ef4444" }}>
@@ -130,8 +140,8 @@ export function Positions({ market, markPrice }: { market: string; markPrice: nu
                         {roe >= 0 ? "+" : ""}{roe.toFixed(2)}%
                       </div>
                     </td>
-                    <td style={{ padding: "10px 12px", fontFamily: "var(--font-mono)", fontSize: 11, color: "#ef4444" }}>
-                      ${fmt(liqPrice)}
+                    <td className="tnum" style={{ padding: "10px 12px", fontFamily: "var(--font-mono)", fontSize: 11, color: "#ef4444" }}>
+                      ${fmt(liqPrice, pd)}
                     </td>
                     <td style={{ padding: "10px 12px", fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-3)" }}>
                       ${fmt(p.notional)}

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -8,39 +8,57 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body {
-  background: #0a0a0a;
-  color: #f0f0f0;
+  background: #08080a;
+  color: #f4f4f5;
   font-family: var(--font-sans);
   height: 100%;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "ss01", "cv01";
 }
 
 /* ── Design tokens ─────────────────────────────── */
 :root {
-  --font-sans: 'DM Sans', system-ui, sans-serif;
-  --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
-  --font-serif: 'Instrument Serif', Georgia, serif;
+  --font-sans: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', 'Courier New', monospace;
+  --font-serif: 'Newsreader', Georgia, serif;
 
-  --bg:        #0a0a0a;
-  --bg-2:      #0e0e0e;
-  --bg-3:      #141414;
-  --border:    #1c1c1c;
-  --border-2:  #272727;
-  --border-3:  #363636;
-  --text-1:    #f5f5f5;
-  --text-2:    #c8c8c8;
-  --text-3:    #989898;
-  --text-4:    #707070;
-  --text-serif-accent: #9ecfb0;
-  --text-label:  #8a8a8a;
-  --text-mono-dim: #757575;
-  --green:     #22c55e;
-  --green-dim: rgba(34,197,94,0.08);
-  --red:       #ef4444;
-  --red-dim:   rgba(239,68,68,0.08);
-  --blue:      #3b82f6;
-  --amber:     #f59e0b;
+  --bg:        #08080a;
+  --bg-2:      #0d0d10;
+  --bg-3:      #131318;
+  --border:    #1b1b20;
+  --border-2:  #26262d;
+  --border-3:  #36363f;
+  --text-1:    #f4f4f5;
+  --text-2:    #c4c4cc;
+  --text-3:    #94949e;
+  --text-4:    #6c6c76;
+  --text-serif-accent: #6ee7b7;
+  --text-label:  #8a8a94;
+  --text-mono-dim: #74747e;
+  --green:     #34d399;
+  --green-dim: rgba(52,211,153,0.08);
+  --red:       #fb7185;
+  --red-dim:   rgba(251,113,133,0.08);
+  --blue:      #60a5fa;
+  --amber:     #fbbf24;
+
+  /* signature brand accent + gradient (reserved for logo + key moments) */
+  --accent:        #34d399;
+  --accent-2:      #a3e635;
+  --accent-grad:   linear-gradient(135deg, #34d399 0%, #a3e635 100%);
+  --ring:          rgba(52,211,153,0.55);
+}
+
+/* ── Accessible focus ring for all interactive elements ── */
+a:focus-visible,
+button:focus-visible,
+[role="button"]:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: 6px;
 }
 
 /* ── Input placeholder ─────────────────────────── */
@@ -122,9 +140,12 @@ input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; marg
 
 /* ── Subtle dot-grid background for landing ────── */
 .dot-grid {
-  background-image: radial-gradient(circle, #1e1e1e 1px, transparent 1px);
+  background-image: radial-gradient(circle, #1e1e22 1px, transparent 1px);
   background-size: 28px 28px;
 }
+
+/* ── Tabular numerals for any changing figure ──── */
+.tnum { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
 
 /* ── Animations ────────────────────────────────── */
 @keyframes spin    { to { transform: rotate(360deg); } }
@@ -149,3 +170,13 @@ input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; marg
 .hero-float-a { animation: hero-float-a 7s ease-in-out infinite; }
 .hero-float-b { animation: hero-float-b 8.5s ease-in-out infinite; }
 .hero-float-c { animation: hero-float-c 6s ease-in-out infinite; }
+
+/* ── Respect reduced-motion globally ───────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

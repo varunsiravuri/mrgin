@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { WalletProviders } from "@/components/WalletProviders";
 import { PaperTradingProvider } from "@/lib/paper-trading";
+import { AuthProvider } from "@/lib/auth";
+import { AuthModal } from "@/components/AuthModal";
+import { ConnectWalletModal } from "@/components/ConnectWalletModal";
 import { Toaster } from "react-hot-toast";
 
 export const metadata: Metadata = {
@@ -13,9 +16,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className="antialiased" style={{ fontFamily: "var(--font-sans)" }}>
+        <AuthProvider>
         <PaperTradingProvider>
         <WalletProviders>
           {children}
+          <AuthModal />
+          <ConnectWalletModal />
           <Toaster
             position="bottom-right"
             toastOptions={{
@@ -31,6 +37,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           />
         </WalletProviders>
         </PaperTradingProvider>
+        </AuthProvider>
       </body>
     </html>
   );

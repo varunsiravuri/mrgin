@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useContext, useEffect, useReducer, useCallback } from "react";
+import { createContext, useContext, useEffect, useReducer, useCallback, useRef } from "react";
 import {
   type PaperPosition,
   type PaperBet,
@@ -8,9 +8,11 @@ import {
   type PaperAction,
   STARTING_BALANCE,
   initialPaperState,
+  normalizePaperState,
   paperTradingReducer,
   paperEquity,
 } from "./paper-trading-logic";
+import { useAuth } from "./auth";
 
 export type { PaperPosition, PaperBet, PaperHistoryEntry };
 
@@ -83,6 +85,8 @@ function reducer(state: PaperState, action: PaperAction): PaperState {
         }, ...state.history].slice(0, 100),
       };
     }
+    case "HYDRATE":
+      return paperTradingReducer(state, action);
     case "RESET":
       return initialPaperState();
     default:
@@ -98,9 +102,15 @@ function load(): PaperState {
   if (typeof window === "undefined") return initialPaperState();
   try {
     const raw = localStorage.getItem(LS_KEY);
-    if (raw) return JSON.parse(raw);
+    if (raw) return normalizePaperState(JSON.parse(raw));
   } catch { /* */ }
   return initialPaperState();
+}
+
+/** A "fresh" account has only the funding entry and no activity — safe to overwrite on login. */
+function isPristine(s: PaperState): boolean {
+  return s.positions.length === 0 && s.bets.length === 0 && s.closedTrades.length === 0
+    && s.freeBalance === STARTING_BALANCE && s.lockedCollateral === 0;
 }
 
 function save(s: PaperState) {
@@ -130,8 +140,71 @@ const Ctx = createContext<PaperCtx | null>(null);
 
 export function PaperTradingProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(reducer, undefined, load);
+  const { user, loading: authLoading } = useAuth();
 
-  useEffect(() => { save(state); }, [state]);
+  const stateRef = useRef(state);
+  stateRef.current = state;
+  const prevUserId = useRef<string | null>(null);
+  const hydrated = useRef(false);          // server state loaded for current user?
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // ── Load the right account when auth state changes ──────────────────────────
+  useEffect(() => {
+    if (authLoading) return;
+    const uid = user?.id ?? null;
+    if (uid === prevUserId.current && hydrated.current) return;
+
+    if (!uid) {
+      // Logged out (or guest): fall back to this browser's local account.
+      if (prevUserId.current !== null) dispatch({ type: "HYDRATE", state: load() });
+      prevUserId.current = null;
+      hydrated.current = true;
+      return;
+    }
+
+    let cancelled = false;
+    hydrated.current = false;
+    (async () => {
+      try {
+        const r = await fetch("/api/paper", { cache: "no-store" });
+        if (!r.ok) return;
+        const { state: server } = await r.json();
+        if (cancelled) return;
+        if (server) {
+          dispatch({ type: "HYDRATE", state: server });
+        } else if (!isPristine(stateRef.current)) {
+          // First login on a device with guest activity → migrate it up.
+          await fetch("/api/paper", {
+            method: "PUT", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ state: stateRef.current }),
+          });
+        } else {
+          // Brand-new account: start clean.
+          dispatch({ type: "HYDRATE", state: initialPaperState() });
+        }
+      } finally {
+        if (!cancelled) { prevUserId.current = uid; hydrated.current = true; }
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [user?.id, authLoading]);
+
+  // ── Persist on every change: server when signed in, localStorage otherwise ──
+  useEffect(() => {
+    if (authLoading) return;
+    if (user) {
+      if (!hydrated.current) return; // don't clobber server before initial load
+      if (saveTimer.current) clearTimeout(saveTimer.current);
+      saveTimer.current = setTimeout(() => {
+        fetch("/api/paper", {
+          method: "PUT", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ state: stateRef.current }),
+        }).catch(() => {});
+      }, 500);
+    } else {
+      save(state);
+    }
+  }, [state, user, authLoading]);
 
   const openPosition = useCallback((params: {
     market: string; symbol: string; side: "long" | "short";

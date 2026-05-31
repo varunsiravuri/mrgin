@@ -1,12 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useWallet, useConnection } from "@solana/wallet-adapter-react";
-import { useWalletModal } from "@solana/wallet-adapter-react-ui";
+import { useWalletModal } from "@/lib/wallet-modal";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 export function WalletButton() {
   const { publicKey, disconnect, connected } = useWallet();
-  const { setVisible } = useWalletModal();
+  const { openWallet } = useWalletModal();
   const { connection } = useConnection();
   const [balance, setBalance] = useState<number | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -21,7 +21,7 @@ export function WalletButton() {
   if (!connected || !publicKey) {
     return (
       <button
-        onClick={() => setVisible(true)}
+        onClick={() => openWallet()}
         style={{
           padding: "6px 14px", borderRadius: 8,
           border: "1px solid var(--border-2)", background: "var(--bg-2)",

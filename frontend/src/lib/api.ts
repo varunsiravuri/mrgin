@@ -55,6 +55,24 @@ export async function fetchBinanceTicker(symbol = "SOLUSDT") {
   return r.json();
 }
 
+export interface BinanceTicker {
+  symbol: string;
+  lastPrice: string;
+  priceChangePercent: string;
+  quoteVolume: string;
+  highPrice: string;
+  lowPrice: string;
+}
+
+/** Fetch 24h tickers for several symbols in one request. */
+export async function fetchBinanceTickers(symbols: string[]): Promise<Record<string, BinanceTicker>> {
+  const param = encodeURIComponent(JSON.stringify(symbols));
+  const r = await fetch(`${BINANCE}/ticker/24hr?symbols=${param}`);
+  if (!r.ok) throw new Error("binance tickers failed");
+  const arr: BinanceTicker[] = await r.json();
+  return Object.fromEntries(arr.map(t => [t.symbol, t]));
+}
+
 export async function fetchBinanceKlines(
   symbol = "SOLUSDT",
   interval = "1m",

@@ -12,6 +12,13 @@ app/api/node_modules/
 app/matching-engine/node_modules/
 app/bots/node_modules/
 *.env.local
+.env
+.env.local
+.env.*.local
 app/.env
+frontend/.env.local
+!.env.example
+!**/.env.example
 .keys/
 frontend/tsconfig.tsbuildinfo
+frontend/.data/

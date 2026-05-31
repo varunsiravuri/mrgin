@@ -4,10 +4,9 @@ import { useEffect, useRef, useState } from "react";
 interface Level { price: number; size: number }
 interface Book  { bids: Level[]; asks: Level[] }
 
-const SYMBOL = "solusdt";
 const LEVELS = 12;
 
-function Side({ levels, side }: { levels: Level[]; side: "bid" | "ask" }) {
+function Side({ levels, side, priceDecimals }: { levels: Level[]; side: "bid" | "ask"; priceDecimals: number }) {
   const displayed = side === "ask" ? [...levels].reverse() : levels;
   const maxSize   = Math.max(...displayed.map(l => l.size), 0.001);
   const color     = side === "bid" ? "#22c55e" : "#ef4444";
@@ -18,11 +17,11 @@ function Side({ levels, side }: { levels: Level[]; side: "bid" | "ask" }) {
       {displayed.map((lvl, i) => (
         <div key={i} style={{ position: "relative", display: "flex", justifyContent: "space-between", alignItems: "center", padding: "2px 10px", cursor: "default" }}>
           <div style={{ position: "absolute", top: 0, bottom: 0, right: 0, width: `${(lvl.size / maxSize) * 100}%`, background: bgColor, pointerEvents: "none" }} />
-          <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color, position: "relative", zIndex: 1 }}>
-            {lvl.price.toFixed(2)}
+          <span className="tnum" style={{ fontFamily: "var(--font-mono)", fontSize: 11, color, position: "relative", zIndex: 1 }}>
+            {lvl.price.toFixed(priceDecimals)}
           </span>
-          <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-3)", position: "relative", zIndex: 1 }}>
-            {lvl.size >= 1000 ? (lvl.size / 1000).toFixed(1) + "k" : lvl.size.toFixed(1)}
+          <span className="tnum" style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-3)", position: "relative", zIndex: 1 }}>
+            {lvl.size >= 1000 ? (lvl.size / 1000).toFixed(1) + "k" : lvl.size.toFixed(2)}
           </span>
         </div>
       ))}
@@ -30,13 +29,15 @@ function Side({ levels, side }: { levels: Level[]; side: "bid" | "ask" }) {
   );
 }
 
-export function OrderBook({ market, markPrice }: { market: string; markPrice: number }) {
+export function OrderBook({ binanceSymbol, markPrice, priceDecimals = 2 }: { binanceSymbol: string; markPrice: number; priceDecimals?: number }) {
   const [book, setBook]   = useState<Book>({ bids: [], asks: [] });
   const [mid,  setMid]    = useState<number>(markPrice);
   const wsRef = useRef<WebSocket | null>(null);
+  const symbol = binanceSymbol.toLowerCase();
 
   // Live order book via Binance WebSocket diff stream
   useEffect(() => {
+    setBook({ bids: [], asks: [] });
     const bidsMap = new Map<number, number>();
     const asksMap = new Map<number, number>();
 
@@ -65,7 +66,7 @@ export function OrderBook({ market, markPrice }: { market: string; markPrice: nu
     }
 
     // Snapshot first, then stream
-    fetch(`https://api.binance.com/api/v3/depth?symbol=${SYMBOL.toUpperCase()}&limit=${LEVELS}`)
+    fetch(`https://api.binance.com/api/v3/depth?symbol=${symbol.toUpperCase()}&limit=${LEVELS}`)
       .then(r => r.json())
       .then(snap => {
         for (const [p, s] of snap.bids) bidsMap.set(Number(p), Number(s));
@@ -77,7 +78,7 @@ export function OrderBook({ market, markPrice }: { market: string; markPrice: nu
       })
       .catch(() => {});
 
-    const ws = new WebSocket(`wss://stream.binance.com:9443/ws/${SYMBOL}@depth@100ms`);
+    const ws = new WebSocket(`wss://stream.binance.com:9443/ws/${symbol}@depth@100ms`);
     ws.onmessage = (evt) => {
       try { flush(JSON.parse(evt.data)); } catch { /* */ }
     };
@@ -85,10 +86,10 @@ export function OrderBook({ market, markPrice }: { market: string; markPrice: nu
     wsRef.current = ws;
 
     return () => ws.close();
-  }, []);
+  }, [symbol]);
 
   const spread = book.asks[0] && book.bids[0]
-    ? (book.asks[0].price - book.bids[0].price).toFixed(2)
+    ? (book.asks[0].price - book.bids[0].price).toFixed(priceDecimals)
     : null;
 
   const displayMid = mid || markPrice;
@@ -113,20 +114,20 @@ export function OrderBook({ market, markPrice }: { market: string; markPrice: nu
 
       {/* Asks (red, flipped) */}
       <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "flex-end", overflow: "hidden" }}>
-        <Side levels={book.asks} side="ask" />
+        <Side levels={book.asks} side="ask" priceDecimals={priceDecimals} />
       </div>
 
       {/* Mid price */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "7px 10px", borderTop: "1px solid var(--border-2)", borderBottom: "1px solid var(--border-2)", background: "var(--bg-3)", flexShrink: 0 }}>
-        <span style={{ fontFamily: "var(--font-mono)", fontSize: 14, fontWeight: 700, color: "var(--text-1)", letterSpacing: "-0.02em" }}>
-          ${displayMid > 0 ? displayMid.toFixed(2) : "—"}
+        <span className="tnum" style={{ fontFamily: "var(--font-mono)", fontSize: 14, fontWeight: 700, color: "var(--text-1)", letterSpacing: "-0.02em" }}>
+          ${displayMid > 0 ? displayMid.toFixed(priceDecimals) : "—"}
         </span>
         <span style={{ fontSize: 9, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Mark</span>
       </div>
 
       {/* Bids (green) */}
       <div style={{ flex: 1, overflow: "hidden" }}>
-        <Side levels={book.bids} side="bid" />
+        <Side levels={book.bids} side="bid" priceDecimals={priceDecimals} />
       </div>
     </div>
   );

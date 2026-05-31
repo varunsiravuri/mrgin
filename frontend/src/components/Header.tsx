@@ -1,6 +1,7 @@
 "use client";
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import { Activity } from "lucide-react";
+import Link from "next/link";
+import { WalletButton } from "@/components/WalletButton";
+import { Logo } from "@/components/Logo";
 
 interface HeaderProps {
   markPrice: number;
@@ -17,12 +18,9 @@ export function Header({ markPrice, change24h = 0, volume24h = 0, openInterest =
     <header className="flex items-center justify-between px-4 h-12 border-b border-[#1a1a1a] bg-[#0a0a0a] shrink-0 z-10">
       {/* Logo */}
       <div className="flex items-center gap-6">
-        <div className="flex items-center gap-2">
-          <Activity size={16} className="text-white" />
-          <span style={{ fontFamily: "var(--font-serif)", fontStyle: "italic" }} className="text-white text-lg leading-none">
-            mrgin
-          </span>
-        </div>
+        <Link href="/" aria-label="mrgin home" className="flex items-center">
+          <Logo size={18} wordSize={18} />
+        </Link>
 
         {/* Market stats strip */}
         {markPrice > 0 && (
@@ -76,7 +74,7 @@ export function Header({ markPrice, change24h = 0, volume24h = 0, openInterest =
           <div className="w-1.5 h-1.5 rounded-full bg-[#22c55e] animate-pulse" />
           <span className="text-[#555] text-xs">devnet</span>
         </div>
-        <WalletMultiButton />
+        <WalletButton />
       </div>
     </header>
   );

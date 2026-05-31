@@ -2,14 +2,16 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { usePaperTrading } from "@/lib/paper-trading";
+import type { PerpMarket } from "@/lib/markets";
 
 type Side = "long" | "short";
 type Mode = "limit" | "market";
 
 const LEVERAGES = [2, 5, 10, 20];
 
-export function TradeForm({ market, markPrice }: { market: string; markPrice: number }) {
+export function TradeForm({ market, markPrice }: { market: PerpMarket; markPrice: number }) {
   const { state, openPosition } = usePaperTrading();
+  const pd = market.priceDecimals;
 
   const [side, setSide] = useState<Side>("long");
   const [mode, setMode] = useState<Mode>("market");
@@ -81,8 +83,8 @@ export function TradeForm({ market, markPrice }: { market: string; markPrice: nu
       : Number(priceStr);
 
     const ok = openPosition({
-      market,
-      symbol: "SOL-PERP",
+      market: market.id,
+      symbol: market.symbol,
       side,
       size,
       price: fillPrice,
@@ -95,8 +97,8 @@ export function TradeForm({ market, markPrice }: { market: string; markPrice: nu
     if (ok) {
       toast.success(
         mode === "market"
-          ? `${side === "long" ? "↑ Long" : "↓ Short"} opened @ $${fillPrice.toFixed(2)}`
-          : `Limit order placed @ $${fillPrice.toFixed(2)}`,
+          ? `${side === "long" ? "↑ Long" : "↓ Short"} opened @ $${fillPrice.toFixed(pd)}`
+          : `Limit order placed @ $${fillPrice.toFixed(pd)}`,
         { icon: side === "long" ? "📈" : "📉" }
       );
       setSizeStr(""); setCollateralStr("");
@@ -157,10 +159,10 @@ export function TradeForm({ market, markPrice }: { market: string; markPrice: nu
         {/* Inputs */}
         {mode === "limit" && (
           <InputRow label="Limit Price (USD)" value={priceStr} onChange={setPriceStr}
-            placeholder={markPrice > 0 ? markPrice.toFixed(2) : "0.00"} />
+            placeholder={markPrice > 0 ? markPrice.toFixed(pd) : "0.00"} />
         )}
 
-        <InputRow label="Size (SOL)" value={sizeStr} onChange={handleSizeChange} placeholder="0.000" />
+        <InputRow label={`Size (${market.base})`} value={sizeStr} onChange={handleSizeChange} placeholder="0.000" />
         <InputRow
           label={`Collateral (USDC) — avail $${fmtBalance}`}
           value={collateralStr} onChange={handleCollateralChange}
@@ -193,8 +195,8 @@ export function TradeForm({ market, markPrice }: { market: string; markPrice: nu
             ["Leverage", `${impliedLeverage}×`],
             ["Notional", notional > 0 ? `$${notional.toFixed(2)}` : "—"],
             ["Margin", collateral ? `$${collateral.toFixed(2)}` : impliedCollateral ? `$${impliedCollateral}` : "—"],
-            ["Entry", mode === "market" ? `~$${markPrice.toFixed(2)}` : priceStr ? `$${Number(priceStr).toFixed(2)}` : "—"],
-            ["Liq. Price", liqPrice ? `$${liqPrice.toFixed(2)}` : "—"],
+            ["Entry", mode === "market" ? `~$${markPrice.toFixed(pd)}` : priceStr ? `$${Number(priceStr).toFixed(pd)}` : "—"],
+            ["Liq. Price", liqPrice ? `$${liqPrice.toFixed(pd)}` : "—"],
           ].map(([label, val]) => (
             <div key={label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <span style={{ fontSize: 11, color: "var(--text-3)" }}>{label}</span>

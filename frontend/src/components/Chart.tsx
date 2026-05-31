@@ -5,15 +5,13 @@ import { fetchBinanceKlines } from "@/lib/api";
 import type { Interval } from "./IntervalSelector";
 
 // Binance interval strings match our Interval type exactly
-const BINANCE_SYMBOL = "SOLUSDT";
-
 interface ChartProps {
-  market: string;
+  binanceSymbol: string;
   interval: Interval;
   markPrice: number;
 }
 
-export function Chart({ market, interval, markPrice }: ChartProps) {
+export function Chart({ binanceSymbol, interval, markPrice }: ChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef    = useRef<any>(null);
   const seriesRef   = useRef<any>(null);
@@ -55,7 +53,7 @@ export function Chart({ market, interval, markPrice }: ChartProps) {
     seriesRef.current = series;
 
     // Load historical candles from Binance
-    fetchBinanceKlines(BINANCE_SYMBOL, interval, 200)
+    fetchBinanceKlines(binanceSymbol, interval, 200)
       .then(candles => {
         series.setData(candles);
         chart.timeScale().fitContent();
@@ -65,7 +63,7 @@ export function Chart({ market, interval, markPrice }: ChartProps) {
     // Open Binance WebSocket for live candle stream
     const streamInterval = interval; // "1m", "5m" etc. match Binance exactly
     const ws = new WebSocket(
-      `wss://stream.binance.com:9443/ws/${BINANCE_SYMBOL.toLowerCase()}@kline_${streamInterval}`
+      `wss://stream.binance.com:9443/ws/${binanceSymbol.toLowerCase()}@kline_${streamInterval}`
     );
     ws.onmessage = (evt) => {
       try {
@@ -101,7 +99,7 @@ export function Chart({ market, interval, markPrice }: ChartProps) {
     };
   // Re-init when market or interval changes
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [market, interval]);
+  }, [binanceSymbol, interval]);
 
   return (
     <div ref={containerRef} style={{ width: "100%", height: "100%", background: "#0a0a0a" }} />

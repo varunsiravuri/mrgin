@@ -9,15 +9,15 @@ interface Trade {
   time: number;
 }
 
-const SYMBOL = "solusdt";
-
-export function RecentTrades({ market }: { market: string }) {
+export function RecentTrades({ binanceSymbol, priceDecimals = 2 }: { binanceSymbol: string; priceDecimals?: number }) {
   const [trades, setTrades] = useState<Trade[]>([]);
   const wsRef = useRef<WebSocket | null>(null);
+  const symbol = binanceSymbol.toLowerCase();
 
   useEffect(() => {
+    setTrades([]);
     // Seed with REST snapshot
-    fetch(`https://api.binance.com/api/v3/trades?symbol=${SYMBOL.toUpperCase()}&limit=40`)
+    fetch(`https://api.binance.com/api/v3/trades?symbol=${symbol.toUpperCase()}&limit=40`)
       .then(r => r.json())
       .then((data: any[]) => {
         const initial = data.reverse().map(t => ({
@@ -29,7 +29,7 @@ export function RecentTrades({ market }: { market: string }) {
       .catch(() => {});
 
     // Stream new trades live
-    const ws = new WebSocket(`wss://stream.binance.com:9443/ws/${SYMBOL}@trade`);
+    const ws = new WebSocket(`wss://stream.binance.com:9443/ws/${symbol}@trade`);
     ws.onmessage = (evt) => {
       try {
         const t = JSON.parse(evt.data);
@@ -43,7 +43,7 @@ export function RecentTrades({ market }: { market: string }) {
     ws.onerror = () => {};
     wsRef.current = ws;
     return () => ws.close();
-  }, []);
+  }, [symbol]);
 
   return (
     <div style={{ height: "100%", display: "flex", flexDirection: "column", background: "var(--bg)" }}>
@@ -69,10 +69,10 @@ export function RecentTrades({ market }: { market: string }) {
         ) : (
           trades.map(t => (
             <div key={t.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "2px 10px" }}>
-              <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: t.isBuy ? "#22c55e" : "#ef4444", width: 70 }}>
-                {t.price.toFixed(2)}
+              <span className="tnum" style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: t.isBuy ? "#22c55e" : "#ef4444", width: 78 }}>
+                {t.price.toFixed(priceDecimals)}
               </span>
-              <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-3)", textAlign: "right", width: 60 }}>
+              <span className="tnum" style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-3)", textAlign: "right", width: 60 }}>
                 {t.size.toFixed(2)}
               </span>
               <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--text-4)", textAlign: "right", width: 60 }}>

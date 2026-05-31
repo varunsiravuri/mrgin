@@ -34,12 +34,31 @@ export interface PaperHistoryEntry {
   ts: number;
 }
 
+/** A fully realized perp trade — the durable record shown in trade history. */
+export interface ClosedTrade {
+  id: string;
+  market: string;
+  symbol: string;
+  side: "long" | "short";
+  size: number;
+  entryPrice: number;
+  exitPrice: number;
+  collateral: number;
+  leverage: number;
+  notional: number;
+  pnl: number;
+  roe: number; // return on equity, %
+  openedAt: number;
+  closedAt: number;
+}
+
 export interface PaperState {
   freeBalance: number;
   lockedCollateral: number;
   positions: PaperPosition[];
   bets: PaperBet[];
   history: PaperHistoryEntry[];
+  closedTrades: ClosedTrade[];
 }
 
 export type PaperAction =
@@ -47,6 +66,7 @@ export type PaperAction =
   | { type: "CLOSE_POSITION"; id: string; exitPrice: number }
   | { type: "PLACE_BET"; bet: PaperBet }
   | { type: "RESOLVE_BET"; id: string; outcome: "yes" | "no" }
+  | { type: "HYDRATE"; state: PaperState }
   | { type: "RESET" };
 
 export const STARTING_BALANCE = 5000;
@@ -57,13 +77,28 @@ export function initialPaperState(): PaperState {
     lockedCollateral: 0,
     positions: [],
     bets: [],
+    closedTrades: [],
     history: [{
       id: "init",
       type: "open",
-      label: "Paper account funded",
+      label: "Demo account funded",
       amount: STARTING_BALANCE,
       ts: Date.now(),
     }],
+  };
+}
+
+/** Normalize a possibly-partial state (e.g. loaded from storage before closedTrades existed). */
+export function normalizePaperState(s: Partial<PaperState> | null | undefined): PaperState {
+  const base = initialPaperState();
+  if (!s) return base;
+  return {
+    freeBalance: typeof s.freeBalance === "number" ? s.freeBalance : base.freeBalance,
+    lockedCollateral: typeof s.lockedCollateral === "number" ? s.lockedCollateral : 0,
+    positions: Array.isArray(s.positions) ? s.positions : [],
+    bets: Array.isArray(s.bets) ? s.bets : [],
+    closedTrades: Array.isArray(s.closedTrades) ? s.closedTrades : [],
+    history: Array.isArray(s.history) && s.history.length ? s.history : base.history,
   };
 }
 
@@ -92,11 +127,28 @@ export function paperTradingReducer(state: PaperState, action: PaperAction): Pap
         ? (action.exitPrice - pos.entryPrice) / pos.entryPrice * pos.notional
         : (pos.entryPrice - action.exitPrice) / pos.entryPrice * pos.notional;
       const returned = pos.collateral + pnl;
+      const closedTrade: ClosedTrade = {
+        id: pos.id,
+        market: pos.market,
+        symbol: pos.symbol,
+        side: pos.side,
+        size: pos.size,
+        entryPrice: pos.entryPrice,
+        exitPrice: action.exitPrice,
+        collateral: pos.collateral,
+        leverage: pos.leverage,
+        notional: pos.notional,
+        pnl,
+        roe: pos.collateral > 0 ? (pnl / pos.collateral) * 100 : 0,
+        openedAt: pos.openedAt,
+        closedAt: Date.now(),
+      };
       return {
         ...state,
         freeBalance: state.freeBalance + Math.max(0, returned),
         lockedCollateral: state.lockedCollateral - pos.collateral,
         positions: state.positions.filter(p => p.id !== action.id),
+        closedTrades: [closedTrade, ...state.closedTrades].slice(0, 500),
         history: [{
           id: pos.id + "-close",
           type: "close" as const,
@@ -138,6 +190,8 @@ export function paperTradingReducer(state: PaperState, action: PaperAction): Pap
         ),
       };
     }
+    case "HYDRATE":
+      return normalizePaperState(action.state);
     case "RESET":
       return initialPaperState();
     default:

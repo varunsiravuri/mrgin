@@ -1,6 +1,10 @@
 
 export default {
   reactStrictMode: true,
+  // Keep the Postgres driver out of the webpack bundle (loaded at runtime in Node).
+  experimental: {
+    serverComponentsExternalPackages: ["pg"],
+  },
   images: {
     remotePatterns: [
       {

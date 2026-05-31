@@ -1,8 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Activity, ChevronLeft, Clock, CheckCircle, Zap, Users } from "lucide-react";
+import { ChevronLeft, Clock, CheckCircle, Zap, Users } from "lucide-react";
 import { WalletButton } from "@/components/WalletButton";
+import { LogoMark } from "@/components/Logo";
 import toast from "react-hot-toast";
 import { DotmSquare3 } from "@/components/ui/dotm-square-3";
 import { usePaperTrading } from "@/lib/paper-trading";
@@ -805,8 +806,8 @@ export default function PredictionsPage() {
         <Link href="/" style={{ display: "flex", alignItems: "center", gap: 4, color: "#444", textDecoration: "none" }}>
           <ChevronLeft size={14} />
         </Link>
-        <Activity size={13} color="#666" />
-        <span style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", fontSize: 17, color: "#f0f0f0" }}>mrgin</span>
+        <LogoMark size={16} />
+        <span style={{ fontFamily: "var(--font-sans)", fontWeight: 600, fontSize: 16, color: "#f0f0f0", letterSpacing: "-0.04em", marginLeft: 2 }}>mrgin</span>
         <span style={{ color: "#222", fontSize: 13 }}>/</span>
         <span style={{ color: "#666", fontSize: 12 }}>Sports Predictions</span>
         <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 12 }}>
