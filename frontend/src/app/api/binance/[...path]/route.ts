@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const BINANCE = "https://api.binance.com/api/v3";
+// Public market-data endpoint (works on Vercel; api.binance.com is geo-blocked in many regions).
+const BINANCE = "https://data-api.binance.vision/api/v3";
+const BINANCE_FALLBACK = "https://api.binance.com/api/v3";
 
 export async function GET(
   req: NextRequest,
@@ -9,7 +11,10 @@ export async function GET(
   const path = params.path.join("/");
   const search = req.nextUrl.search;
   try {
-    const r = await fetch(`${BINANCE}/${path}${search}`, { cache: "no-store" });
+    let r = await fetch(`${BINANCE}/${path}${search}`, { cache: "no-store" });
+    if (!r.ok && r.status !== 404) {
+      r = await fetch(`${BINANCE_FALLBACK}/${path}${search}`, { cache: "no-store" });
+    }
     const data = await r.json();
     return NextResponse.json(data, { status: r.status });
   } catch {
