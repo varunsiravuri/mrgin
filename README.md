@@ -2,7 +2,7 @@
 
 Cross-margin trading on Solana — one collateral pool for perpetual futures and prediction markets.
 
-**Live app:** [www.mrgin.me](https://www.mrgin.me) · **API:** [api.mrgin.me](https://api.mrgin.me)
+**Live app:** [www.mrgin.me](https://www.mrgin.me) 
 
 ---
 
