@@ -128,7 +128,7 @@ export function ConnectWalletModal() {
             Link a Solana wallet to view on-chain portfolio data on devnet.
           </p>
           <p style={{ fontSize: 11.5, color: "var(--text-4)", lineHeight: 1.55, margin: 0 }}>
-            Demo trading works with email — a wallet is optional.
+            Demo trading works with email — connect a wallet to trade on devnet with real transactions.
           </p>
         </div>
 

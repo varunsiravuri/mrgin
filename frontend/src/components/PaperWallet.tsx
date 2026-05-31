@@ -34,6 +34,11 @@ export function PaperWallet({ markPrices = {} }: Props) {
         onMouseEnter={e => (e.currentTarget.style.borderColor = "var(--border-3)")}
         onMouseLeave={e => (e.currentTarget.style.borderColor = "var(--border-2)")}
       >
+        <span style={{
+          fontSize: 9, fontWeight: 700, color: "#fbbf24", textTransform: "uppercase",
+          letterSpacing: "0.06em", padding: "2px 5px", borderRadius: 4,
+          background: "rgba(251,191,36,0.1)", border: "1px solid rgba(251,191,36,0.15)",
+        }}>Demo</span>
         <div style={{ textAlign: "left" }}>
           <div style={{ fontFamily: "var(--font-mono)", fontSize: 13, fontWeight: 700, color: "var(--text-1)", lineHeight: 1 }}>
             {fmt(eq)}
@@ -62,9 +67,10 @@ export function PaperWallet({ markPrices = {} }: Props) {
             <div style={{ padding: "14px 16px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <div>
                 <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
-                  <span style={{ fontSize: 11, fontWeight: 600, color: "var(--text-1)" }}>Account</span>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: "var(--text-1)" }}>Demo Account</span>
+                  <span style={{ fontSize: 9, fontWeight: 700, color: "#fbbf24", padding: "1px 5px", borderRadius: 4, background: "rgba(251,191,36,0.1)" }}>SIM</span>
                 </div>
-                <div style={{ fontSize: 11, color: "var(--text-3)" }}>Demo funds · Reset anytime</div>
+                <div style={{ fontSize: 11, color: "var(--text-3)" }}>Simulated USDC · Connect wallet for live devnet</div>
               </div>
               <button onClick={() => setOpen(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-3)", padding: 4 }}>
                 <X size={14} />

@@ -1,38 +1,52 @@
+const APP_ROOT = process.env.MRGIN_APP_ROOT || "/opt/mrgin/app";
+
 module.exports = {
   apps: [
     {
       name: "api",
-      cwd: "/opt/mrgin/api",
+      cwd: APP_ROOT,
       script: "npx",
-      args: "tsx src/index.ts",
-      env: { NODE_ENV: "production" },
+      args: "tsx api/src/index.ts",
+      env: {
+        NODE_ENV: "production",
+        DOTENV_CONFIG_PATH: `${APP_ROOT}/.env`,
+      },
       restart_delay: 3000,
       max_restarts: 10,
     },
     {
       name: "matcher",
-      cwd: "/opt/mrgin/matching-engine",
+      cwd: APP_ROOT,
       script: "npx",
-      args: "tsx src/index.ts",
-      env: { NODE_ENV: "production" },
+      args: "tsx matching-engine/src/index.ts",
+      env: {
+        NODE_ENV: "production",
+        DOTENV_CONFIG_PATH: `${APP_ROOT}/.env`,
+      },
       restart_delay: 3000,
-      max_restarts: 50, // aggressive restart — must not stop
+      max_restarts: 50,
     },
     {
       name: "bots",
-      cwd: "/opt/mrgin/bots",
+      cwd: APP_ROOT,
       script: "npx",
-      args: "tsx src/index.ts",
-      env: { NODE_ENV: "production" },
+      args: "tsx bots/src/index.ts",
+      env: {
+        NODE_ENV: "production",
+        DOTENV_CONFIG_PATH: `${APP_ROOT}/.env`,
+      },
       restart_delay: 5000,
-      max_restarts: 50, // liquidation bot must recover fast
+      max_restarts: 50,
     },
     {
       name: "indexer",
-      cwd: "/opt/mrgin/indexer",
+      cwd: APP_ROOT,
       script: "npx",
-      args: "tsx src/index.ts",
-      env: { NODE_ENV: "production" },
+      args: "tsx indexer/src/index.ts",
+      env: {
+        NODE_ENV: "production",
+        DOTENV_CONFIG_PATH: `${APP_ROOT}/.env`,
+      },
       restart_delay: 3000,
       max_restarts: 10,
     },

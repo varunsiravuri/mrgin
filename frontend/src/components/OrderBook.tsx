@@ -66,7 +66,7 @@ export function OrderBook({ binanceSymbol, markPrice, priceDecimals = 2 }: { bin
     }
 
     // Snapshot first, then stream
-    fetch(`https://api.binance.com/api/v3/depth?symbol=${symbol.toUpperCase()}&limit=${LEVELS}`)
+    fetch(`/api/binance/depth?symbol=${symbol.toUpperCase()}&limit=${LEVELS}`)
       .then(r => r.json())
       .then(snap => {
         for (const [p, s] of snap.bids) bidsMap.set(Number(p), Number(s));

@@ -1,27 +1,44 @@
 "use client";
 import { useEffect, useRef } from "react";
-import { createChart, ColorType, CrosshairMode, CandlestickSeries, UTCTimestamp } from "lightweight-charts";
+import {
+  createChart,
+  ColorType,
+  CrosshairMode,
+  CandlestickSeries,
+  UTCTimestamp,
+  type IChartApi,
+  type ISeriesApi,
+  type CandlestickData,
+} from "lightweight-charts";
 import { fetchBinanceKlines } from "@/lib/api";
 import type { Interval } from "./IntervalSelector";
 
-// Binance interval strings match our Interval type exactly
 interface ChartProps {
   binanceSymbol: string;
   interval: Interval;
   markPrice: number;
 }
 
-export function Chart({ binanceSymbol, interval, markPrice }: ChartProps) {
+function safeChartOp(fn: () => void) {
+  try {
+    fn();
+  } catch {
+    // Chart may already be disposed during unmount / interval switch.
+  }
+}
+
+export function Chart({ binanceSymbol, interval }: ChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const chartRef    = useRef<any>(null);
-  const seriesRef   = useRef<any>(null);
-  const wsRef       = useRef<WebSocket | null>(null);
 
-  // ── Init chart + load candles ────────────────────────────────────
   useEffect(() => {
-    if (!containerRef.current) return;
+    const el = containerRef.current;
+    if (!el) return;
 
-    const chart = createChart(containerRef.current, {
+    let alive = true;
+    let chart: IChartApi | null = null;
+    let series: ISeriesApi<"Candlestick"> | null = null;
+
+    chart = createChart(el, {
       layout: {
         background: { type: ColorType.Solid, color: "#0a0a0a" },
         textColor: "#444",
@@ -39,66 +56,76 @@ export function Chart({ binanceSymbol, interval, markPrice }: ChartProps) {
       },
       rightPriceScale: { borderColor: "#161616", textColor: "#444" },
       timeScale: { borderColor: "#161616", timeVisible: true, secondsVisible: false },
-      width:  containerRef.current.clientWidth,
-      height: containerRef.current.clientHeight,
+      width: el.clientWidth,
+      height: el.clientHeight,
     });
 
-    const series = chart.addSeries(CandlestickSeries, {
-      upColor: "#22c55e", downColor: "#ef4444",
-      borderUpColor: "#22c55e", borderDownColor: "#ef4444",
-      wickUpColor: "#22c55e", wickDownColor: "#ef4444",
+    series = chart.addSeries(CandlestickSeries, {
+      upColor: "#22c55e",
+      downColor: "#ef4444",
+      borderUpColor: "#22c55e",
+      borderDownColor: "#ef4444",
+      wickUpColor: "#22c55e",
+      wickDownColor: "#ef4444",
     });
 
-    chartRef.current  = chart;
-    seriesRef.current = series;
-
-    // Load historical candles from Binance
     fetchBinanceKlines(binanceSymbol, interval, 200)
       .then(candles => {
-        series.setData(candles);
-        chart.timeScale().fitContent();
+        if (!alive || !series || !chart) return;
+        safeChartOp(() => {
+          series!.setData(candles);
+          chart!.timeScale().fitContent();
+        });
       })
       .catch(() => {});
 
-    // Open Binance WebSocket for live candle stream
-    const streamInterval = interval; // "1m", "5m" etc. match Binance exactly
     const ws = new WebSocket(
-      `wss://stream.binance.com:9443/ws/${binanceSymbol.toLowerCase()}@kline_${streamInterval}`
+      `wss://stream.binance.com:9443/ws/${binanceSymbol.toLowerCase()}@kline_${interval}`
     );
-    ws.onmessage = (evt) => {
+    ws.onmessage = evt => {
+      if (!alive || !series) return;
       try {
-        const { k } = JSON.parse(evt.data);
+        const { k } = JSON.parse(evt.data as string);
         if (!k) return;
-        seriesRef.current?.update({
-          time:  Math.floor(k.t / 1000) as UTCTimestamp,
-          open:  Number(k.o),
-          high:  Number(k.h),
-          low:   Number(k.l),
+        const bar: CandlestickData<UTCTimestamp> = {
+          time: Math.floor(k.t / 1000) as UTCTimestamp,
+          open: Number(k.o),
+          high: Number(k.h),
+          low: Number(k.l),
           close: Number(k.c),
-        });
-      } catch { /* */ }
+        };
+        safeChartOp(() => series!.update(bar));
+      } catch {
+        /* ignore parse / disposed */
+      }
     };
     ws.onerror = () => {};
-    wsRef.current = ws;
 
-    // ResizeObserver
     const ro = new ResizeObserver(() => {
-      if (containerRef.current) {
-        chart.applyOptions({
-          width:  containerRef.current.clientWidth,
-          height: containerRef.current.clientHeight,
+      if (!alive || !chart || !containerRef.current) return;
+      safeChartOp(() => {
+        chart!.applyOptions({
+          width: containerRef.current!.clientWidth,
+          height: containerRef.current!.clientHeight,
         });
-      }
+      });
     });
-    ro.observe(containerRef.current);
+    ro.observe(el);
 
     return () => {
+      alive = false;
       ro.disconnect();
-      ws.close();
-      chart.remove();
+      ws.onmessage = null;
+      ws.onopen = null;
+      ws.onerror = null;
+      ws.onclose = null;
+      if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
+        ws.close();
+      }
+      series = null;
+      safeChartOp(() => chart!.remove());
+      chart = null;
     };
-  // Re-init when market or interval changes
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [binanceSymbol, interval]);
 
   return (

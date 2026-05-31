@@ -9,6 +9,7 @@
     "indexer"
   ],
   "scripts": {
+    "db:push": "cd api && npx drizzle-kit push",
     "build": "tsc -b api/tsconfig.json matching-engine/tsconfig.json bots/tsconfig.json indexer/tsconfig.json",
     "dev:api": "cd api && npx tsx watch src/index.ts",
     "dev:matcher": "cd matching-engine && npx tsx watch src/index.ts",

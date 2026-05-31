@@ -1,7 +1,7 @@
 import type { CandlestickData, Time, UTCTimestamp } from "lightweight-charts";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
-const BINANCE = "https://api.binance.com/api/v3";
+const BINANCE = "/api/binance";
 
 // ── Internal API ──────────────────────────────────────────────────────────────
 

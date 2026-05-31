@@ -17,7 +17,7 @@ export function RecentTrades({ binanceSymbol, priceDecimals = 2 }: { binanceSymb
   useEffect(() => {
     setTrades([]);
     // Seed with REST snapshot
-    fetch(`https://api.binance.com/api/v3/trades?symbol=${symbol.toUpperCase()}&limit=40`)
+    fetch(`/api/binance/trades?symbol=${symbol.toUpperCase()}&limit=40`)
       .then(r => r.json())
       .then((data: any[]) => {
         const initial = data.reverse().map(t => ({

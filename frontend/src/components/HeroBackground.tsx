@@ -19,7 +19,7 @@ const LAYERS = [
     parallax: 0.024,
   },
   {
-    src: "https://images.unsplash.com/photo-1504459217808-04ea83416e44?auto=format&fit=crop&w=1400&q=70",
+    src: "https://images.unsplash.com/photo-1639765487024-403b45635d86?auto=format&fit=crop&w=1400&q=70",
     alt: "",
     style: { bottom: "-18%", left: "22%", width: "48%", height: "55%", opacity: 0.1 },
     blur: 4,
