@@ -1,10 +1,6 @@
 "use client";
 
-/**
- * mrgin mark — two markets (perps + predictions) converging into one vault.
- * The split notch at the top reads as two inputs; the single rising stroke
- * inside is the shared cross-margin equity line. Scales cleanly from 16→64px.
- */
+/** Brand mark — rising M-chart with upward arrow (blue → teal → green). */
 export function LogoMark({
   size = 22,
   className,
@@ -12,51 +8,43 @@ export function LogoMark({
   size?: number;
   className?: string;
 }) {
-  const id = "mrgin-grad";
+  const grad = "mrgin-brand-grad";
   return (
     <svg
       width={size}
       height={size}
-      viewBox="0 0 24 24"
+      viewBox="0 0 48 48"
       fill="none"
       className={className}
       aria-hidden="true"
       role="img"
     >
       <defs>
-        <linearGradient id={id} x1="3" y1="21" x2="21" y2="3" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#34d399" />
-          <stop offset="1" stopColor="#a3e635" />
+        <linearGradient id={grad} x1="4" y1="44" x2="44" y2="4" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#2563eb" />
+          <stop offset="0.45" stopColor="#14b8a6" />
+          <stop offset="1" stopColor="#84cc16" />
         </linearGradient>
       </defs>
-      {/* vault */}
-      <rect
-        x="2.4"
-        y="2.4"
-        width="19.2"
-        height="19.2"
-        rx="6"
-        stroke={`url(#${id})`}
-        strokeWidth="1.6"
-      />
-      {/* two markets converging — the split feed lines */}
+      {/* M-chart stroke rising into arrow — matches brand lockup */}
       <path
-        d="M7.5 7.2 L12 11 L16.5 7.2"
-        stroke={`url(#${id})`}
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        opacity="0.55"
-      />
-      {/* shared cross-margin equity line, rising */}
-      <path
-        d="M7.5 16.6 L10.4 13.7 L13 15.4 L16.8 10.4"
-        stroke={`url(#${id})`}
-        strokeWidth="1.7"
+        d="M6 34 C6 34 8 22 14 26 L22 14 L30 24 L38 8 L42 4"
+        stroke={`url(#${grad})`}
+        strokeWidth="4.2"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <circle cx="16.8" cy="10.4" r="1.35" fill="#a3e635" />
+      {/* Arrow head */}
+      <path
+        d="M42 4 L34 6 L38 12 Z"
+        fill={`url(#${grad})`}
+      />
+      {/* Base accent triangle */}
+      <path
+        d="M30 28 L26 34 L34 34 Z"
+        fill={`url(#${grad})`}
+        opacity="0.85"
+      />
     </svg>
   );
 }
@@ -89,7 +77,6 @@ export function Logo({
             letterSpacing: "-0.04em",
             lineHeight: 1,
             color,
-            // optical: cap-height sits high, nudge to baseline-align with the mark
             marginTop: 1,
           }}
         >
